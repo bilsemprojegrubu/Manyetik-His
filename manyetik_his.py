@@ -118,7 +118,9 @@ class App(tk.Tk):
         super().__init__()
         self.title("MANYETİK-HİS: Kutupların Savaşı")
         self.configure(bg="#1b1f2a")
-        self.resizable(False, False)
+        self.minsize(900, 640)
+        self.bind("<F11>", self.toggle_fullscreen)
+        self.bind("<Escape>", lambda e: self.attributes("-fullscreen", False))
         self.game = None
         self.cell_btns = []
         self.timer_job = None
@@ -129,6 +131,9 @@ class App(tk.Tk):
         self.tool_var = tk.StringVar(value="Fe")
         self.flag_var = tk.StringVar(value="N")
         self.menu()
+
+    def toggle_fullscreen(self, event=None):
+        self.attributes("-fullscreen", not self.attributes("-fullscreen"))
 
     # ---------------- Menü ----------------
     def clear(self):
@@ -141,7 +146,7 @@ class App(tk.Tk):
     def menu(self):
         self.clear()
         f = tk.Frame(self, bg="#1b1f2a", padx=40, pady=30)
-        f.pack()
+        f.pack(expand=True)
         tk.Label(f, text="MANYETİK-HİS", font=("Arial", 30, "bold"),
                  fg="#ffd54f", bg="#1b1f2a").pack()
         tk.Label(f, text="Kutupların Savaşı", font=("Arial", 16),
@@ -208,11 +213,13 @@ class App(tk.Tk):
         self.clear()
         g = self.game
         main = tk.Frame(self, bg="#1b1f2a", padx=14, pady=14)
-        main.pack()
+        main.pack(fill="both", expand=True)
+        main.columnconfigure(0, weight=1)
+        main.rowconfigure(0, weight=1)
 
         # --- tabla ---
         left = tk.Frame(main, bg="#1b1f2a")
-        left.grid(row=0, column=0, padx=(0, 16))
+        left.grid(row=0, column=0, padx=(0, 16), sticky="nsew")
         for c in range(SIZE):
             tk.Label(left, text=str(c + 1), fg="#aaa", bg="#1b1f2a",
                      font=("Arial", 11, "bold")).grid(row=0, column=c + 1)
@@ -224,7 +231,9 @@ class App(tk.Tk):
                 i = r * SIZE + c
                 b = tk.Button(left, width=11, height=4, font=("Arial", 10, "bold"),
                               command=lambda i=i: self.on_cell(i))
-                b.grid(row=r + 1, column=c + 1, padx=3, pady=3)
+                b.grid(row=r + 1, column=c + 1, padx=3, pady=3, sticky="nsew")
+                left.columnconfigure(c + 1, weight=1)
+                left.rowconfigure(r + 1, weight=1)
                 self.cell_btns.append(b)
 
         # --- sağ panel ---
