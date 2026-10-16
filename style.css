@@ -1,0 +1,225 @@
+:root {
+  --bg: #1b1f2a;
+  --panel: #263043;
+  --gold: #ffd54f;
+  --text: #ffffff;
+  --muted: #cccccc;
+  --red: #e53935;
+  --blue: #1e88e5;
+  --green: #43a047;
+  --yellow: #f9a825;
+  --cell: #cfd8dc;
+  --ok: #a5d6a7;
+  --bad: #ef9a9a;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+}
+
+.screen {
+  padding: 24px 16px;
+}
+
+/* ---------- Menu ---------- */
+#menu-screen {
+  max-width: 480px;
+  margin: 0 auto;
+  text-align: center;
+}
+#menu-screen h1 {
+  color: var(--gold);
+  font-size: 2rem;
+  margin-bottom: 0;
+}
+#menu-screen h2 {
+  font-weight: normal;
+  margin-top: 4px;
+  margin-bottom: 20px;
+}
+#menu-screen h3 {
+  margin-top: 24px;
+}
+.big-btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  font-size: 1rem;
+  font-weight: bold;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid #3a4560;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.big-btn:hover { background: #324061; }
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+.player-count-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+#name-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.name-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.name-input-row .dot {
+  font-size: 1.1rem;
+}
+.name-input-row input {
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #555;
+  width: 160px;
+}
+
+/* ---------- Game screen ---------- */
+.game-layout {
+  display: flex;
+  gap: 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.board-wrap { flex: 0 0 auto; }
+.board-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 90px);
+  grid-template-rows: repeat(4, 90px);
+  gap: 6px;
+}
+.cell-btn {
+  border: none;
+  border-radius: 6px;
+  background: var(--cell);
+  color: black;
+  font-weight: bold;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: pre-line;
+  text-align: center;
+  line-height: 1.2;
+}
+.cell-btn:hover { filter: brightness(0.95); }
+.cell-btn:disabled { cursor: default; }
+
+.side-panel {
+  flex: 0 0 300px;
+  display: flex;
+  flex-direction: column;
+}
+.lbl-title {
+  color: var(--gold);
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+.lbl-turn {
+  font-weight: bold;
+  margin-top: 4px;
+}
+.lbl-info {
+  color: var(--muted);
+  margin: 4px 0 10px;
+  white-space: pre-line;
+}
+.box {
+  border: 1px solid #3a4560;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+}
+.box-title {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+.radio-row {
+  display: block;
+  margin: 3px 0;
+}
+.indent { margin-left: 18px; }
+.flag-row label { margin-right: 8px; }
+.chk-row {
+  display: block;
+  margin: 8px 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.lbl-msg {
+  background: var(--panel);
+  color: #80deea;
+  font-weight: bold;
+  padding: 10px 8px;
+  border-radius: 6px;
+  margin: 8px 0;
+  white-space: pre-line;
+  min-height: 48px;
+}
+.lbl-score {
+  white-space: pre-line;
+  margin: 6px 0;
+}
+
+/* player color dots / flag backgrounds set inline via JS */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.modal-box {
+  background: var(--panel);
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 420px;
+  width: 100%;
+}
+.modal-title {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+.modal-body {
+  white-space: pre-line;
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+@media (max-width: 480px) {
+  .board-grid {
+    grid-template-columns: repeat(4, 22vw);
+    grid-template-rows: repeat(4, 22vw);
+  }
+  .side-panel { flex-basis: 100%; }
+}
