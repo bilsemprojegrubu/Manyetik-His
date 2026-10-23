@@ -193,11 +193,13 @@ body {
   line-height: 1.1;
   color: #5a3515;
 }
+.hist-N { color: #b3261e; }
+.hist-Fe { color: #4f5a63; }
 .cell-real { color: var(--ink); background: rgba(255, 245, 220, 0.75); }
 
 /* ---------- Tespit taşı (kare) ---------- */
 .stone {
-  --pc: #7c8791;
+  --pc: #1e6fd9;
   --sz: 60%;
   position: relative;
   width: var(--sz);
@@ -214,32 +216,17 @@ body {
   align-items: center;
   justify-content: center;
 }
-.stone-N { --pc: #d33a2c; }
-.stone-S { --pc: #1e6fd9; }
-.stone-Fe { --pc: #7c8791; }
-.stone-Cu { --pc: #e07b00; }
 .stone-letter {
   font-weight: 900;
   font-size: 1.35rem;
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5), 0 -1px 0 rgba(255, 255, 255, 0.25); /* kabartma */
 }
 .stone-mark {
-  --pl: #333;
   position: absolute;
-  right: -5px;
-  bottom: -5px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #fff;
-  color: var(--pl);
-  border: 1.5px solid var(--pl);
-  font-size: 0.65rem;
-  font-weight: bold;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  right: 3px;
+  bottom: 1px;
+  font-size: 0.55rem;
+  opacity: 0.9;
 }
 .stone.ok { outline: 4px solid var(--ok); }
 .stone.bad { outline: 4px solid var(--bad); }

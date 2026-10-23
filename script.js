@@ -595,22 +595,18 @@ function buildGameUI() {
 // ---------------- Görsel öğeler ----------------
 function playerStyle(p) { return PLAYER_STYLES[p % PLAYER_STYLES.length]; }
 
-// Taşın rengi malzemeyi gösterir (N kırmızı, S mavi, Fe gri, Cu turuncu).
-// Çok oyunculu oyunda hangi oyuncunun olduğu köşedeki renkli şekil rozetiyle anlaşılır.
+// Taşın rengi oyuncuyu gösterir; harf malzemeyi, köşedeki şekil renk körlüğü için ek işarettir.
 function makeStone(sym, p) {
   const st = document.createElement("div");
   st.className = `stone stone-${sym}`;
+  st.style.setProperty("--pc", playerStyle(p).color);
   const letter = document.createElement("span");
   letter.className = "stone-letter";
   letter.textContent = sym;
-  st.appendChild(letter);
-  if (game && game.level === 2) {
-    const mark = document.createElement("span");
-    mark.className = "stone-mark";
-    mark.style.setProperty("--pl", playerStyle(p).color);
-    mark.textContent = playerStyle(p).mark;
-    st.appendChild(mark);
-  }
+  const mark = document.createElement("span");
+  mark.className = "stone-mark";
+  mark.textContent = playerStyle(p).mark;
+  st.append(letter, mark);
   return st;
 }
 
@@ -1184,9 +1180,13 @@ function paintCell(i, el) {
   } else if (hist.length) {
     const h = document.createElement("span");
     h.className = "cell-hist";
-    h.textContent = hist.map((t) =>
-      `${t.tool === "Fe" ? "Fe" : "N"}:${REACTION_SHORT[t.result]}${t.exposed ? "🤥" : ""}${t.confirmed ? "✔" : ""}`
-    ).join(" ");
+    hist.forEach((t, k) => {
+      const part = document.createElement("span");
+      part.className = `hist-${t.tool}`;
+      part.textContent = `${t.tool === "Fe" ? "Fe" : "N"}:${REACTION_SHORT[t.result]}${t.exposed ? "🤥" : ""}${t.confirmed ? "✔" : ""}`;
+      if (k) h.appendChild(document.createTextNode(" "));
+      h.appendChild(part);
+    });
     el.appendChild(h);
   }
 }
