@@ -72,7 +72,39 @@ const CARDS = [
       ],
     },
   },
-  { id: 3, title: "Kart 3 — Diyamanyetizma (Bakır sürümü)", text: "", image: "" },
+  {
+    id: 3, title: "Kart 3 — Diyamanyetizma (Bakır sürümü)", text: "", image: "", color: "#7a4318",
+    front: {
+      label: "Kart 3 · Ön yüz · Oyun içi etkisi",
+      title: "Diyamanyetik Maddeler",
+      sub: "Nötr malzeme: Bakır sürümü",
+      sections: [
+        { h: "Oyundaki Rolü",
+          p: "Bakır (Cu) sürümünde 4 gizli nötr yuva." },
+        { h: "Oyun Tepkileri",
+          list: ["N-Kutbu aracı: **SIFIR TEPKİ**",
+                 "Demir aracı: **SIFIR TEPKİ**"] },
+        { h: "Stratejik Kullanım",
+          p: "N aracıyla sıfır tepki kareyi tek başına nötr yapar; Demir aracıyla da sıfır bunu doğrular. " +
+             "Oyuncu Cu/Al tespit taşını yerleştirir. Bu oyunda alüminyum kullanılmaz." },
+      ],
+    },
+    back: {
+      label: "Kart 3 · Arka yüz · Fizik bilgisi",
+      title: "Diyamanyetik Maddeler",
+      sub: "Nötr malzeme: Bakır sürümü",
+      sections: [
+        { h: "Temel",
+          p: "Bakır, altın ve su mıknatısa yapışmaz; mıknatıs onları çok hafifçe iter." },
+        { h: "İleri",
+          p: "Alanla zıt yönde zayıfça mıknatıslanırlar (μᵣ < 1). Bu kuvvet oyunda hissedilmez." },
+        { h: "Statik ve hareket",
+          p: "Durağan testte sıfır tepki; hareket halinde bakır mıknatısı yavaşlatır (Kart 5)." },
+        { h: "Düşün", p: "Bakır mıknatısı iter ama neden hissetmedik?" },
+        { h: "Örnekler", p: "Bakır, Gümüş, Altın, Su, Elmas, Karbon, Kurşun." },
+      ],
+    },
+  },
   {
     id: 4, title: "Kart 4 — Paramanyetizma (Alüminyum sürümü)", text: "", image: "", color: "#2f4f4a",
     front: {
@@ -137,5 +169,4 @@ const CARDS = [
       ],
     },
   },
-  { id: 6, title: "Kart 6 — Ek Kart", text: "", image: "" },
 ];
