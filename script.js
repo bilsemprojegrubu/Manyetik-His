@@ -461,9 +461,10 @@ function richText(el, str) {
   });
 }
 
-function buildCardFace(face) {
+function buildCardFace(face, color) {
   const box = document.createElement("div");
   box.className = "card-face";
+  if (color) box.style.setProperty("--cc", color);
   const label = document.createElement("div");
   label.className = "card-label";
   label.textContent = face.label;
@@ -471,6 +472,12 @@ function buildCardFace(face) {
   title.className = "card-title";
   title.textContent = face.title;
   box.append(label, title);
+  if (face.sub) {
+    const sub = document.createElement("div");
+    sub.className = "card-sub";
+    sub.textContent = face.sub;
+    box.appendChild(sub);
+  }
   face.sections.forEach((sec) => {
     const wrap = document.createElement("div");
     wrap.className = "card-sec";
@@ -507,7 +514,7 @@ function openCard(card) {
     const holder = document.createElement("div");
     const show = (k) => {
       holder.innerHTML = "";
-      holder.appendChild(buildCardFace(faces[k][1]));
+      holder.appendChild(buildCardFace(faces[k][1], card.color));
       Array.from(tabs.children).forEach((t, j) => t.classList.toggle("active", j === k));
     };
     faces.forEach(([name], k) => {
