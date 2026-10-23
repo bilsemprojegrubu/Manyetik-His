@@ -447,18 +447,89 @@ function buildCards() {
     grid.appendChild(b);
   });
 }
+// **kalın** işaretini güvenli biçimde (innerHTML kullanmadan) kalın yazıya çevirir
+function richText(el, str) {
+  str.split("**").forEach((part, i) => {
+    if (!part) return;
+    if (i % 2) {
+      const b = document.createElement("strong");
+      b.textContent = part;
+      el.appendChild(b);
+    } else {
+      el.appendChild(document.createTextNode(part));
+    }
+  });
+}
+
+function buildCardFace(face) {
+  const box = document.createElement("div");
+  box.className = "card-face";
+  const label = document.createElement("div");
+  label.className = "card-label";
+  label.textContent = face.label;
+  const title = document.createElement("div");
+  title.className = "card-title";
+  title.textContent = face.title;
+  box.append(label, title);
+  face.sections.forEach((sec) => {
+    const wrap = document.createElement("div");
+    wrap.className = "card-sec";
+    const h = document.createElement("div");
+    h.className = "card-h";
+    h.textContent = sec.h;
+    wrap.appendChild(h);
+    if (sec.p) {
+      const p = document.createElement("p");
+      richText(p, sec.p);
+      wrap.appendChild(p);
+    }
+    if (sec.list) {
+      const ul = document.createElement("ul");
+      sec.list.forEach((t) => {
+        const li = document.createElement("li");
+        richText(li, t);
+        ul.appendChild(li);
+      });
+      wrap.appendChild(ul);
+    }
+    box.appendChild(wrap);
+  });
+  return box;
+}
+
 function openCard(card) {
   modalTitle.textContent = card.title;
   modalBody.textContent = "";
-  if (card.image) {
-    const img = document.createElement("img");
-    img.src = card.image;
-    img.alt = card.title;
-    img.className = "card-img";
-    modalBody.appendChild(img);
+  if (card.front && card.back) {
+    const tabs = document.createElement("div");
+    tabs.className = "card-tabs";
+    const faces = [["Ön yüz", card.front], ["Arka yüz", card.back]];
+    const holder = document.createElement("div");
+    const show = (k) => {
+      holder.innerHTML = "";
+      holder.appendChild(buildCardFace(faces[k][1]));
+      Array.from(tabs.children).forEach((t, j) => t.classList.toggle("active", j === k));
+    };
+    faces.forEach(([name], k) => {
+      const t = document.createElement("button");
+      t.className = "card-tab";
+      t.textContent = name;
+      t.addEventListener("click", () => show(k));
+      tabs.appendChild(t);
+    });
+    modalBody.append(tabs, holder);
+    show(0);
+  } else {
+    if (card.image) {
+      const img = document.createElement("img");
+      img.src = card.image;
+      img.alt = card.title;
+      img.className = "card-img";
+      modalBody.appendChild(img);
+    }
+    if (card.text) modalBody.appendChild(document.createTextNode(card.text));
+    if (!card.image && !card.text) modalBody.textContent = "Bu kartın içeriği yakında eklenecek.";
   }
-  if (card.text) modalBody.appendChild(document.createTextNode(card.text));
-  if (!card.image && !card.text) modalBody.textContent = "Bu kartın içeriği yakında eklenecek.";
   modalOverlay.style.display = "flex";
 }
 buildCards();
