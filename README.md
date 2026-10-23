@@ -19,18 +19,27 @@ Tabladaki 16 gizli madde (N-Kutbu mıknatıs, S-Kutbu mıknatıs, demir ve bakı
 
 ## 🎮 Oyun modları
 
+Web sürümünde ([`index.html`](index.html)) test araçları **piyonlar**, tespit taşları **kare taşlardır**; hepsi sürüklenip karelere bırakılır (dokunmatik ekranda önce seçilip sonra kareye dokunulur). Taşların üzerinde kabartma harf (N, S, Fe, Cu) ve renk körlüğü için oyuncuya özel bir şekil işareti bulunur. Her malzemeden tabladaki sayı kadar taş vardır.
+
 **Seviye 1: Tek oyunculu, zamana karşı**
 - İki test aracını da dilediğin sırayla kullanırsın.
-- 16 karenin hepsine bayrak dikince kronometre durur ve tabla açılır.
-- Doğru bayrak **+10**, yanlış bayrak **−5** puan.
+- Tüm karelere taş koyunca kronometre durur ve tabla açılır. Taşlar süre durana dek değiştirilebilir.
+- Doğru taş **+10**, yanlış taş **−5** puan. Skor, Supabase skor tablosuna kaydedilir.
+- **Uzman modu:** 24 test ücretsizdir, fazladan her test −1 puandır.
 
-**Seviye 2: Çok oyunculu (2–4 oyuncu), stratejik hafıza ve çıkarım**
-- Oyuncular sırayla test eder, rakiplerin yaptığı testleri aklında tutar.
-- Her turda bir test ve bir bayrak hakkı vardır.
-- İlk dikilen bayrak kareyi kilitler.
-- Doğru bayrak **+10**, yanlış bayrak **−10** puan.
+**Seviye 2: Çok oyunculu (2–8 oyuncu) ve yapay zekâya karşı**
+- Oyuncular sırayla oynar. Bir tur, **zorunlu bir test** (iki araçtan birini seçersin) ve **isteğe bağlı bir taş yerleştirmeden** oluşur; taş koymadan bitirmek **pas**tır.
+- İlk konan taş kareyi kilitler. Doğru taş **+10**, yanlış taş **−10** puan.
+- Tüm oyuncular art arda iki tam tur pas geçerse **Zorunlu Tespit Turu** başlar: herkes sırayla bir taş yerleştirmek zorundadır.
+- **Tabla boyutu:** 2–4 oyuncuda 4×4 (16 kare). 5–8 oyuncuda oyuncu sayısı × oyuncu sayısı (25, 36, 49, 64 kare). Malzemeler eşit dağıtılır; 5×5 ve 7×7'de 4'e bölünmeyen tek kare bakıra eklenir.
+- **Yapay zekâya karşı (2 kişilik):** Yapay zekâ, herkese açık test bilgilerinden çıkarım yapar, yalnızca kesin bildiği kareye taş koyar.
+- **Blöf modu (isteğe bağlı):** Test eden tepkiyi gizlice görür, sonra doğruyu ya da başka bir tepkiyi açıklar. Sıradaki oyuncu itiraz edebilir: blöfü yakalarsa **+10** (blöf yapan −10), haksız çıkarsa **−10**. Yapay zekâ duruma göre blöf yapar ve itiraz eder.
+
+**📚 Kartlara Göz At:** Ana menüden bilgi kartlarına ulaşılır. Kart metinleri ve görselleri [`cards.js`](cards.js) dosyasından eklenir.
 
 ## ▶️ Nasıl çalıştırılır?
+
+**Web sürümü:** <https://bilsemprojegrubu.github.io/Manyetik-His/> adresinden açılır ya da `index.html` tarayıcıda açılır. Aşağıdaki Python sürümü eski masaüstü sürümüdür ve yalnızca temel kuralları içerir.
 
 Gereken tek şey **Python 3.8 veya üzeri**dir (Tkinter Python ile birlikte gelir, ek kurulum yoktur).
 
