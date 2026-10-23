@@ -13,24 +13,52 @@
   <h2>Kutupların Savaşı</h2>
 
   <button class="big-btn" id="btn-level1">SEVİYE 1 — Tek Oyunculu (Zamana Karşı)</button>
+  <label class="chk-row menu-chk">
+    <input type="checkbox" id="chk-expert"> Uzman modu (24 test ücretsiz, fazlası −1 puan)
+  </label>
 
   <h3>SEVİYE 2 — Çok Oyunculu</h3>
+  <button class="big-btn" id="btn-ai">🤖 Yapay Zekâya Karşı (2 kişilik)</button>
+
   <div class="player-count-row">
     <span>Oyuncu sayısı:</span>
     <label><input type="radio" name="pcount" value="2" checked> 2</label>
     <label><input type="radio" name="pcount" value="3"> 3</label>
     <label><input type="radio" name="pcount" value="4"> 4</label>
+    <label><input type="radio" name="pcount" value="5"> 5</label>
+    <label><input type="radio" name="pcount" value="6"> 6</label>
+    <label><input type="radio" name="pcount" value="7"> 7</label>
+    <label><input type="radio" name="pcount" value="8"> 8</label>
   </div>
+  <div id="board-note" class="menu-note"></div>
   <div id="name-inputs"></div>
+  <label class="chk-row menu-chk">
+    <input type="checkbox" id="chk-bluff"> Blöf modu (yapay zekâya karşı oyunda da geçerli)
+  </label>
   <button class="big-btn" id="btn-level2">Oyunu Başlat</button>
-  <button class="link-btn" id="btn-leaders">🏆 Skor Tablosu</button>
-  <button class="link-btn" id="btn-help">Nasıl oynanır?</button>
+
+  <div class="menu-links">
+    <button class="big-btn alt-btn" id="btn-cards">📚 Kartlara Göz At</button>
+    <button class="link-btn" id="btn-leaders">🏆 Skor Tablosu</button>
+    <button class="link-btn" id="btn-help">Nasıl oynanır?</button>
+  </div>
+  <div class="version">v3.0</div>
+</div>
+
+<div id="cards-screen" class="screen" style="display:none">
+  <div class="cards-wrap">
+    <h1>📚 Kartlar</h1>
+    <div id="card-grid" class="card-grid"></div>
+    <button class="big-btn" id="btn-cards-back">← Menüye dön</button>
+  </div>
 </div>
 
 <div id="game-screen" class="screen" style="display:none">
   <div class="game-layout">
     <div class="board-wrap">
-      <div id="board-grid" class="board-grid"></div>
+      <div class="board-frame">
+        <div id="board-grid" class="board-grid"></div>
+      </div>
     </div>
     <div class="side-panel">
       <div id="lbl-title" class="lbl-title"></div>
@@ -38,17 +66,12 @@
       <div id="lbl-info" class="lbl-info"></div>
 
       <div class="box">
-        <div class="box-title">Ne yapacaksın?</div>
-        <label class="radio-row"><input type="radio" name="mode" value="test" checked> Test et</label>
-        <div id="tool-choice" class="indent"></div>
-        <label class="radio-row"><input type="radio" name="mode" value="flag"> Bayrak dik</label>
-        <div class="indent flag-row">
-          <label><input type="radio" name="flagsym" value="N" checked> N</label>
-          <label><input type="radio" name="flagsym" value="S"> S</label>
-          <label><input type="radio" name="flagsym" value="Fe"> Fe</label>
-          <label><input type="radio" name="flagsym" value="Cu"> Cu</label>
-        </div>
-        <label class="radio-row" id="unflag-row" style="display:none"><input type="radio" name="mode" value="unflag"> Bayrağı kaldır</label>
+        <div class="box-title">Tespit taşları <span class="hint">(sürükle ya da seç, sonra kareye dokun)</span></div>
+        <div id="stone-tray" class="tray"></div>
+      </div>
+      <div class="box">
+        <div class="box-title">Test araçları</div>
+        <div id="tool-tray" class="tray"></div>
       </div>
 
       <label class="chk-row">
@@ -56,9 +79,8 @@
         Test geçmişini karelerde göster (hafıza yardımı)
       </label>
 
-      <div id="lbl-msg" class="lbl-msg">Bir kareyi test et.</div>
-
-      <button id="btn-end-turn" class="big-btn" style="display:none">Turu Bitir / Pas Geç</button>
+      <div id="lbl-msg" class="lbl-msg">Bir test aracını sürükleyip kareye bırak.</div>
+      <div id="action-panel" class="action-panel"></div>
 
       <div id="lbl-score" class="lbl-score"></div>
 
@@ -75,6 +97,7 @@
   </div>
 </div>
 
+<script src="cards.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
