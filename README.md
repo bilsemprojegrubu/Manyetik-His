@@ -1,6 +1,6 @@
 # 🧲 MANYETİK-HİS: Kutupların Savaşı
 
-**Güncel oyun sürümü: v3.0** · **[▶️ Oyunu oyna: bilsemprojegrubu.github.io/Manyetik-His](https://bilsemprojegrubu.github.io/Manyetik-His/)** · [Oyun sürümleri](#-oyun-sürümleri)
+**Güncel oyun sürümü: v3.1** · **[▶️ Oyunu oyna: bilsemprojegrubu.github.io/Manyetik-His](https://bilsemprojegrubu.github.io/Manyetik-His/)** · [Oyun sürümleri](#-oyun-sürümleri)
 
 Manyetik-His, görünmeyen manyetik kuvvetleri oyun yoluyla öğreten **eğitici bir mantık, hafıza ve manyetizma masa oyunudur**. Bu depoda oyunun dijitalleştirilmiş test sürümü ve güncellemeleri yer alır.
 
@@ -100,6 +100,7 @@ Bu tablo oyunun kendi sürümlerini anlatır: kurallar, modlar, oynanış ve gö
 
 | Oyun sürümü | Tarih | Oyunda neler değişti |
 |---|---|---|
+| **v3.1** | 23 Eki 2026 | **Test araçlarının renkleri:** N-Kutbu piyonu kırmızı, Demir piyonu gri (hafıza yardımında araç adları da aynı renkte). Taşlar oyuncunun renginde kalır. **Skor kaydı:** oyun bitince isim girmek isteyip istemediğin sorulur; istemezsen skor "Oyun 1", "Oyun 2" gibi otomatik adla kaydedilir. **Hafıza yardımı:** aynı araçla tekrar test edilen karede tepki üst üste yazılmaz, her araç için bir kez görünür. |
 | **v3.0** | 23 Eki 2026 | **Görünüm:** ahşap tahta temalı arayüz. "Test et / bayrak dik" seçenekleri yerine kare **tespit taşları** (N, S, Fe, Cu) ve altı kare **piyon test araçları**; hepsi sürükle-bırak. Taş bırakma ve çekme / itme / tepki yok animasyonları. **Yeni modlar:** yapay zekâya karşı 2 kişilik oyun, blöf modu (blöf, itiraz, puanlama), Uzman modu (24 ücretsiz test). **Oyuncu sayısı:** 8 kişiye kadar; 5+ oyuncuda tabla n×n. **Bilgi kartları:** 5 kart, ön yüzde oyun etkisi, arka yüzde fizik bilgisi. **Kural düzeltmeleri:** Seviye 2'de her turda iki araçtan birini seçme, zorunlu test, pas ve Zorunlu Tespit Turu. |
 | **v2.1** | 23 Eki 2026 | Seviye 1 skoru kaydedilir; menüden en iyi 10 oyuncu görülür (skor tablosu). |
 | **v2.0** | 16 Eki 2026 | Oyun tarayıcıda oynanır hâle geldi. Kurallar v1 ile aynı. |
@@ -116,7 +117,7 @@ Bu tablo oyunun kendi sürümlerini anlatır: kurallar, modlar, oynanış ve gö
 | [`manyetik_his.py`](manyetik_his.py) | Eski masaüstü sürümü (v1, Tkinter) |
 | `README.md` | Bu tanıtım sayfası |
 
-> **Güncelleme notu:** `index.html` içindeki `style.css?v=3.0`, `cards.js?v=3.0` ve `script.js?v=3.0` numarasını her sürümde artır. Böylece telefon ve tarayıcılar eski dosyaları önbellekten göstermez.
+> **Güncelleme notu:** `index.html` içindeki `style.css?v=3.1`, `cards.js?v=3.1` ve `script.js?v=3.1` numarasını her sürümde artır. Böylece telefon ve tarayıcılar eski dosyaları önbellekten göstermez.
 
 ---
 

@@ -595,6 +595,7 @@ function buildGameUI() {
 // ---------------- Görsel öğeler ----------------
 function playerStyle(p) { return PLAYER_STYLES[p % PLAYER_STYLES.length]; }
 
+// Taşın rengi oyuncuyu gösterir; harf malzemeyi, köşedeki şekil renk körlüğü için ek işarettir.
 function makeStone(sym, p) {
   const st = document.createElement("div");
   st.className = `stone stone-${sym}`;
@@ -604,7 +605,7 @@ function makeStone(sym, p) {
   letter.textContent = sym;
   const mark = document.createElement("span");
   mark.className = "stone-mark";
-  mark.textContent = playerStyle(p).mark; // renk körlüğü için şekil işareti
+  mark.textContent = playerStyle(p).mark;
   st.append(letter, mark);
   return st;
 }
@@ -1141,7 +1142,10 @@ function refresh() {
 function paintCell(i, el) {
   const g = game;
   const flag = g.flags.get(i);
-  const hist = chkHistory.checked ? (g.tests.get(i) || []).slice(-3) : [];
+  // Her araç için yalnızca bir kez (en son sonucu) gösterilir
+  const byTool = new Map();
+  (g.tests.get(i) || []).forEach((t) => byTool.set(t.tool, t));
+  const hist = chkHistory.checked ? [...byTool.values()] : [];
   const sig = JSON.stringify([
     flag || 0, g.over, g.justPlaced === i,
     hist.map((t) => [t.tool, t.result, t.exposed, t.confirmed]),
@@ -1176,9 +1180,13 @@ function paintCell(i, el) {
   } else if (hist.length) {
     const h = document.createElement("span");
     h.className = "cell-hist";
-    h.textContent = hist.map((t) =>
-      `${t.tool === "Fe" ? "Fe" : "N"}:${REACTION_SHORT[t.result]}${t.exposed ? "🤥" : ""}${t.confirmed ? "✔" : ""}`
-    ).join(" ");
+    hist.forEach((t, k) => {
+      const part = document.createElement("span");
+      part.className = `hist-${t.tool}`;
+      part.textContent = `${t.tool === "Fe" ? "Fe" : "N"}:${REACTION_SHORT[t.result]}${t.exposed ? "🤥" : ""}${t.confirmed ? "✔" : ""}`;
+      if (k) h.appendChild(document.createTextNode(" "));
+      h.appendChild(part);
+    });
     el.appendChild(h);
   }
 }
@@ -1197,6 +1205,28 @@ function refreshScores() {
 }
 
 chkHistory.addEventListener("change", () => game && refresh());
+
+// Skor tablosu için isim: oyuncu isterse yazar, istemezse "Oyun 1", "Oyun 2"... diye otomatik gider
+function nextAutoName() {
+  let n = 0;
+  try { n = parseInt(localStorage.getItem("oyunSayaci"), 10) || 0; } catch (e) { /* yoksay */ }
+  n++;
+  try { localStorage.setItem("oyunSayaci", String(n)); } catch (e) { /* yoksay */ }
+  return `Oyun ${n}`;
+}
+
+function askScoreName() {
+  let saved = "";
+  try { saved = localStorage.getItem("oyuncuAdi") || ""; } catch (e) { /* yoksay */ }
+  if (confirm("Skor tablosuna isim girmek ister misin?\n\n(İstemezsen skorun 'Oyun 1', 'Oyun 2' gibi otomatik bir adla kaydedilir.)")) {
+    const name = (prompt("Adını yaz:", saved) || "").trim().slice(0, 20);
+    if (name) {
+      try { localStorage.setItem("oyuncuAdi", name); } catch (e) { /* yoksay */ }
+      return name;
+    }
+  }
+  return nextAutoName();
+}
 
 function finish() {
   const g = game;
@@ -1226,15 +1256,10 @@ function finish() {
   say("OYUN BİTTİ!\n" + msg);
   showModal("Oyun bitti - Showdown", msg);
   if (g.level === 1) {
-    const saved = localStorage.getItem("oyuncuAdi") || "";
-    const name = (prompt("Skor tablosuna kaydetmek için adını yaz (iptal = kaydetme):", saved) || "")
-      .trim().slice(0, 20);
-    if (name) {
-      localStorage.setItem("oyuncuAdi", name);
-      saveScore(name, s[0], correct, finalTime).then((ok) =>
-        showModal("Oyun bitti - Showdown",
-          msg + (ok ? "\n\n✅ Skorun kaydedildi." : "\n\n⚠️ Skor kaydedilemedi.")));
-    }
+    const name = askScoreName();
+    saveScore(name, s[0], correct, finalTime).then((ok) =>
+      showModal("Oyun bitti - Showdown",
+        msg + (ok ? `\n\n✅ Skorun "${name}" adıyla kaydedildi.` : "\n\n⚠️ Skor kaydedilemedi.")));
   }
   lblInfo.textContent = "Oyun bitti. Menüye dönüp tekrar oynayabilirsin.";
 }
