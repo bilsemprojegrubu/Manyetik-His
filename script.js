@@ -17,6 +17,11 @@ const PLAYER_COLORS = [
   ["Sarı", "#f9a825"],
 ];
 
+// Supabase (skor tablosu). Publishable anahtar tarayıcıda açık durması için üretilmiştir;
+// tabloya erişimi veritabanındaki RLS kuralları sınırlar.
+const SUPABASE_URL = "https://yetpclbtvqqwktkufsyq.supabase.co";
+const SUPABASE_KEY = "sb_publishable_H5FP5r8o4RH3dEtXUe4_UQ_u3tYvIhA";
+
 const TOOL_NAMES = { Fe: "Demir Test Aracı", N: "N-Kutbu Test Aracı" };
 
 const PULL = "cekme", PUSH = "itme", NONE = "yok";
@@ -139,6 +144,47 @@ function showModal(title, body) {
 document.getElementById("modal-close").addEventListener("click", () => {
   modalOverlay.style.display = "none";
 });
+
+function supaFetch(path, options = {}) {
+  return fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    ...options,
+    headers: {
+      apikey: SUPABASE_KEY,
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+}
+
+async function saveScore(name, puan, dogru, sure) {
+  try {
+    const res = await supaFetch("skorlar", {
+      method: "POST",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({ oyuncu: name, puan, dogru, sure_sn: Math.round(sure * 10) / 10 }),
+    });
+    return res.ok;
+  } catch (e) {
+    return false;
+  }
+}
+
+async function showLeaderboard() {
+  showModal("🏆 En İyi 10", "Yükleniyor...");
+  try {
+    const res = await supaFetch(
+      "skorlar?select=oyuncu,puan,sure_sn&order=puan.desc,sure_sn.asc&limit=10");
+    if (!res.ok) throw new Error(res.status);
+    const rows = await res.json();
+    const text = rows.length
+      ? rows.map((r, i) => `${i + 1}. ${r.oyuncu} — ${r.puan} puan (${r.sure_sn.toFixed(1)} sn)`).join("\n")
+      : "Henüz kayıtlı skor yok. İlk skoru sen yap!";
+    showModal("🏆 En İyi 10", text);
+  } catch (e) {
+    showModal("🏆 En İyi 10", "Skor tablosuna ulaşılamadı. İnternet bağlantını kontrol et.");
+  }
+}
+document.getElementById("btn-leaders").addEventListener("click", showLeaderboard);
 
 function buildNameInputs() {
   nameInputsDiv.innerHTML = "";
@@ -404,6 +450,17 @@ function finish() {
   }
   say("OYUN BİTTİ!\n" + msg);
   showModal("Oyun bitti - Showdown", msg);
+  if (game.level === 1) {
+    const saved = localStorage.getItem("oyuncuAdi") || "";
+    const name = (prompt("Skor tablosuna kaydetmek için adını yaz (iptal = kaydetme):", saved) || "")
+      .trim().slice(0, 20);
+    if (name) {
+      localStorage.setItem("oyuncuAdi", name);
+      saveScore(name, s[0], correct, finalTime).then(ok =>
+        showModal("Oyun bitti - Showdown",
+          msg + (ok ? "\n\n✅ Skorun kaydedildi." : "\n\n⚠️ Skor kaydedilemedi.")));
+    }
+  }
   lblInfo.textContent = "Oyun bitti. Menüye dönüp tekrar oynayabilirsin.";
 }
 
