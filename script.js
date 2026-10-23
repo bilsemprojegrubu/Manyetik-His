@@ -595,17 +595,22 @@ function buildGameUI() {
 // ---------------- Görsel öğeler ----------------
 function playerStyle(p) { return PLAYER_STYLES[p % PLAYER_STYLES.length]; }
 
+// Taşın rengi malzemeyi gösterir (N kırmızı, S mavi, Fe gri, Cu turuncu).
+// Çok oyunculu oyunda hangi oyuncunun olduğu köşedeki renkli şekil rozetiyle anlaşılır.
 function makeStone(sym, p) {
   const st = document.createElement("div");
   st.className = `stone stone-${sym}`;
-  st.style.setProperty("--pc", playerStyle(p).color);
   const letter = document.createElement("span");
   letter.className = "stone-letter";
   letter.textContent = sym;
-  const mark = document.createElement("span");
-  mark.className = "stone-mark";
-  mark.textContent = playerStyle(p).mark; // renk körlüğü için şekil işareti
-  st.append(letter, mark);
+  st.appendChild(letter);
+  if (game && game.level === 2) {
+    const mark = document.createElement("span");
+    mark.className = "stone-mark";
+    mark.style.setProperty("--pl", playerStyle(p).color);
+    mark.textContent = playerStyle(p).mark;
+    st.appendChild(mark);
+  }
   return st;
 }
 
@@ -1198,6 +1203,28 @@ function refreshScores() {
 
 chkHistory.addEventListener("change", () => game && refresh());
 
+// Skor tablosu için isim: oyuncu isterse yazar, istemezse "Oyun 1", "Oyun 2"... diye otomatik gider
+function nextAutoName() {
+  let n = 0;
+  try { n = parseInt(localStorage.getItem("oyunSayaci"), 10) || 0; } catch (e) { /* yoksay */ }
+  n++;
+  try { localStorage.setItem("oyunSayaci", String(n)); } catch (e) { /* yoksay */ }
+  return `Oyun ${n}`;
+}
+
+function askScoreName() {
+  let saved = "";
+  try { saved = localStorage.getItem("oyuncuAdi") || ""; } catch (e) { /* yoksay */ }
+  if (confirm("Skor tablosuna isim girmek ister misin?\n\n(İstemezsen skorun 'Oyun 1', 'Oyun 2' gibi otomatik bir adla kaydedilir.)")) {
+    const name = (prompt("Adını yaz:", saved) || "").trim().slice(0, 20);
+    if (name) {
+      try { localStorage.setItem("oyuncuAdi", name); } catch (e) { /* yoksay */ }
+      return name;
+    }
+  }
+  return nextAutoName();
+}
+
 function finish() {
   const g = game;
   g.over = true;
@@ -1226,15 +1253,10 @@ function finish() {
   say("OYUN BİTTİ!\n" + msg);
   showModal("Oyun bitti - Showdown", msg);
   if (g.level === 1) {
-    const saved = localStorage.getItem("oyuncuAdi") || "";
-    const name = (prompt("Skor tablosuna kaydetmek için adını yaz (iptal = kaydetme):", saved) || "")
-      .trim().slice(0, 20);
-    if (name) {
-      localStorage.setItem("oyuncuAdi", name);
-      saveScore(name, s[0], correct, finalTime).then((ok) =>
-        showModal("Oyun bitti - Showdown",
-          msg + (ok ? "\n\n✅ Skorun kaydedildi." : "\n\n⚠️ Skor kaydedilemedi.")));
-    }
+    const name = askScoreName();
+    saveScore(name, s[0], correct, finalTime).then((ok) =>
+      showModal("Oyun bitti - Showdown",
+        msg + (ok ? `\n\n✅ Skorun "${name}" adıyla kaydedildi.` : "\n\n⚠️ Skor kaydedilemedi.")));
   }
   lblInfo.textContent = "Oyun bitti. Menüye dönüp tekrar oynayabilirsin.";
 }

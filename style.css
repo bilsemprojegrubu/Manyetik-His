@@ -197,7 +197,7 @@ body {
 
 /* ---------- Tespit taşı (kare) ---------- */
 .stone {
-  --pc: #1e6fd9;
+  --pc: #7c8791;
   --sz: 60%;
   position: relative;
   width: var(--sz);
@@ -214,17 +214,32 @@ body {
   align-items: center;
   justify-content: center;
 }
+.stone-N { --pc: #d33a2c; }
+.stone-S { --pc: #1e6fd9; }
+.stone-Fe { --pc: #7c8791; }
+.stone-Cu { --pc: #e07b00; }
 .stone-letter {
   font-weight: 900;
   font-size: 1.35rem;
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5), 0 -1px 0 rgba(255, 255, 255, 0.25); /* kabartma */
 }
 .stone-mark {
+  --pl: #333;
   position: absolute;
-  right: 3px;
-  bottom: 1px;
-  font-size: 0.55rem;
-  opacity: 0.9;
+  right: -5px;
+  bottom: -5px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--pl);
+  border: 1.5px solid var(--pl);
+  font-size: 0.65rem;
+  font-weight: bold;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .stone.ok { outline: 4px solid var(--ok); }
 .stone.bad { outline: 4px solid var(--bad); }
@@ -244,8 +259,8 @@ body {
   height: 66px;
   pointer-events: none;
 }
-.pawn-N { --pt: #4f8df0; --pt2: #1d4ea8; }
-.pawn-Fe { --pt: #b3bcc4; --pt2: #5f6a73; }
+.pawn-N { --pt: #e2574a; --pt2: #a32419; }
+.pawn-Fe { --pt: #a3adb6; --pt2: #5f6a73; }
 .pawn-fig {
   width: 100%;
   height: 100%;
@@ -346,7 +361,7 @@ body {
   animation: bubble 1.3s ease-out forwards;
 }
 .bubble-cekme { background: #2e7d32; }
-.bubble-itme { background: #1565c0; }
+.bubble-itme { background: #b3261e; }
 .bubble-yok { background: #6d5a45; }
 @keyframes bubble {
   0% { opacity: 0; margin-top: 10px; }
