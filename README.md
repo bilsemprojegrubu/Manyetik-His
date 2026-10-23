@@ -116,6 +116,8 @@ Bu tablo oyunun kendi sürümlerini anlatır: kurallar, modlar, oynanış ve gö
 | [`manyetik_his.py`](manyetik_his.py) | Eski masaüstü sürümü (v1, Tkinter) |
 | `README.md` | Bu tanıtım sayfası |
 
+> **Güncelleme notu:** `index.html` içindeki `style.css?v=3.0`, `cards.js?v=3.0` ve `script.js?v=3.0` numarasını her sürümde artır. Böylece telefon ve tarayıcılar eski dosyaları önbellekten göstermez.
+
 ---
 
 *Bilsem Proje Grubu*
