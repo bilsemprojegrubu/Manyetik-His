@@ -1,6 +1,6 @@
 # 🧲 MANYETİK-HİS: Kutupların Savaşı
 
-**Güncel sürüm: v3.0** · **[▶️ Oyunu oyna: bilsemprojegrubu.github.io/Manyetik-His](https://bilsemprojegrubu.github.io/Manyetik-His/)** · [Sürüm geçmişi](#-sürüm-geçmişi)
+**Güncel oyun sürümü: v3.0** · **[▶️ Oyunu oyna: bilsemprojegrubu.github.io/Manyetik-His](https://bilsemprojegrubu.github.io/Manyetik-His/)** · [Oyun sürümleri](#-oyun-sürümleri)
 
 Manyetik-His, görünmeyen manyetik kuvvetleri oyun yoluyla öğreten **eğitici bir mantık, hafıza ve manyetizma masa oyunudur**. Bu depoda oyunun dijitalleştirilmiş test sürümü ve güncellemeleri yer alır.
 
@@ -94,15 +94,16 @@ Denge testleri için [`script.js`](script.js) dosyasının başındaki `AYARLAR`
 - [ ] İnternet üzerinden uzaktan çok oyunculu (Supabase Realtime)
 - [ ] Hesap girişi ve kişisel skorlar
 
-## 📜 Sürüm geçmişi
+## 📜 Oyun sürümleri
 
-| Sürüm | Tarih | Neler değişti |
+Bu tablo oyunun kendi sürümlerini anlatır: kurallar, modlar, oynanış ve görünüm.
+
+| Oyun sürümü | Tarih | Oyunda neler değişti |
 |---|---|---|
-| **v3.0** | 23 Eki 2026 | Ahşap temalı yeni arayüz. "Test et / bayrak dik" yerine etkileşimli kare **tespit taşları** ve altı kare **piyon test araçları** (sürükle-bırak). Taş bırakma ve çekme/itme/tepki yok animasyonları. **Yapay zekâya karşı** 2 kişilik mod. **Blöf modu** (blöf, itiraz, puanlama). **8 oyuncuya kadar** (5+ oyuncuda n×n tabla). **Uzman modu** (24 ücretsiz test). **Kartlara Göz At** (5 bilgi kartı, ön/arka yüz). Proje raporuyla uyum: her turda araç seçimi, zorunlu test, pas ve Zorunlu Tespit Turu. |
-| **v2.1** | 23 Eki 2026 | **Supabase skor tablosu:** Seviye 1 skoru kaydedilir, menüden en iyi 10 görülür. Oyun GitHub Pages ile yayına alındı. |
-| **v2.0** | 16 Eki 2026 | **Web sürümü** (HTML, CSS, JS): oyun tarayıcıda, kurulum olmadan oynanır. |
-| **v1.1** | 11 Eki 2026 | Pencere büyütme ve F11 tam ekran desteği, README ve oyun tanıtımı. |
-| **v1.0** | 11 Eki 2026 | İlk sürüm: Tkinter ile masaüstü oyun (Seviye 1 ve Seviye 2). |
+| **v3.0** | 23 Eki 2026 | **Görünüm:** ahşap tahta temalı arayüz. "Test et / bayrak dik" seçenekleri yerine kare **tespit taşları** (N, S, Fe, Cu) ve altı kare **piyon test araçları**; hepsi sürükle-bırak. Taş bırakma ve çekme / itme / tepki yok animasyonları. **Yeni modlar:** yapay zekâya karşı 2 kişilik oyun, blöf modu (blöf, itiraz, puanlama), Uzman modu (24 ücretsiz test). **Oyuncu sayısı:** 8 kişiye kadar; 5+ oyuncuda tabla n×n. **Bilgi kartları:** 5 kart, ön yüzde oyun etkisi, arka yüzde fizik bilgisi. **Kural düzeltmeleri:** Seviye 2'de her turda iki araçtan birini seçme, zorunlu test, pas ve Zorunlu Tespit Turu. |
+| **v2.1** | 23 Eki 2026 | Seviye 1 skoru kaydedilir; menüden en iyi 10 oyuncu görülür (skor tablosu). |
+| **v2.0** | 16 Eki 2026 | Oyun tarayıcıda oynanır hâle geldi. Kurallar v1 ile aynı. |
+| **v1.0** | 11 Eki 2026 | İlk sürüm: 4×4 tabla, 16 gizli madde (4 N, 4 S, 4 Fe, 4 Cu), Demir ve N-Kutbu test araçları. Seviye 1 (tek oyunculu, zamana karşı) ve Seviye 2 (2–4 oyunculu). |
 
 ## 📄 Dosyalar
 
