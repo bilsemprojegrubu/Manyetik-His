@@ -100,7 +100,7 @@ Bu tablo oyunun kendi sürümlerini anlatır: kurallar, modlar, oynanış ve gö
 
 | Oyun sürümü | Tarih | Oyunda neler değişti |
 |---|---|---|
-| **v3.1** | 23 Eki 2026 | **Taş renkleri malzemeyi gösterir:** N kırmızı, S mavi, Fe gri, Cu turuncu (N-Kutbu piyonu da kırmızı). Çok oyunculu oyunda taşın sahibi köşedeki renkli şekil rozetiyle görülür. **Skor kaydı:** oyun bitince isim girmek isteyip istemediğin sorulur; istemezsen skor "Oyun 1", "Oyun 2" gibi otomatik adla kaydedilir. |
+| **v3.1** | 23 Eki 2026 | **Taş renkleri malzemeyi gösterir:** N kırmızı, S mavi, Fe gri, Cu turuncu (N-Kutbu piyonu da kırmızı). Çok oyunculu oyunda taşın sahibi köşedeki renkli şekil rozetiyle görülür. **Hafıza yardımı:** aynı araçla tekrar test edilen karede tepki üst üste yazılmaz, her araç için bir kez görünür. **Skor kaydı:** oyun bitince isim girmek isteyip istemediğin sorulur; istemezsen skor "Oyun 1", "Oyun 2" gibi otomatik adla kaydedilir. |
 | **v3.0** | 23 Eki 2026 | **Görünüm:** ahşap tahta temalı arayüz. "Test et / bayrak dik" seçenekleri yerine kare **tespit taşları** (N, S, Fe, Cu) ve altı kare **piyon test araçları**; hepsi sürükle-bırak. Taş bırakma ve çekme / itme / tepki yok animasyonları. **Yeni modlar:** yapay zekâya karşı 2 kişilik oyun, blöf modu (blöf, itiraz, puanlama), Uzman modu (24 ücretsiz test). **Oyuncu sayısı:** 8 kişiye kadar; 5+ oyuncuda tabla n×n. **Bilgi kartları:** 5 kart, ön yüzde oyun etkisi, arka yüzde fizik bilgisi. **Kural düzeltmeleri:** Seviye 2'de her turda iki araçtan birini seçme, zorunlu test, pas ve Zorunlu Tespit Turu. |
 | **v2.1** | 23 Eki 2026 | Seviye 1 skoru kaydedilir; menüden en iyi 10 oyuncu görülür (skor tablosu). |
 | **v2.0** | 16 Eki 2026 | Oyun tarayıcıda oynanır hâle geldi. Kurallar v1 ile aynı. |

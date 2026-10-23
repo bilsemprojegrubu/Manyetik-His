@@ -1146,7 +1146,10 @@ function refresh() {
 function paintCell(i, el) {
   const g = game;
   const flag = g.flags.get(i);
-  const hist = chkHistory.checked ? (g.tests.get(i) || []).slice(-3) : [];
+  // Her araç için yalnızca bir kez (en son sonucu) gösterilir
+  const byTool = new Map();
+  (g.tests.get(i) || []).forEach((t) => byTool.set(t.tool, t));
+  const hist = chkHistory.checked ? [...byTool.values()] : [];
   const sig = JSON.stringify([
     flag || 0, g.over, g.justPlaced === i,
     hist.map((t) => [t.tool, t.result, t.exposed, t.confirmed]),
