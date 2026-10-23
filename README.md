@@ -1,8 +1,10 @@
 # 🧲 MANYETİK-HİS: Kutupların Savaşı
 
+**Güncel sürüm: v3.0** · **[▶️ Oyunu oyna: bilsemprojegrubu.github.io/Manyetik-His](https://bilsemprojegrubu.github.io/Manyetik-His/)** · [Sürüm geçmişi](#-sürüm-geçmişi)
+
 Manyetik-His, görünmeyen manyetik kuvvetleri oyun yoluyla öğreten **eğitici bir mantık, hafıza ve manyetizma masa oyunudur**. Bu depoda oyunun dijitalleştirilmiş test sürümü ve güncellemeleri yer alır.
 
-Tabladaki 16 gizli madde (N-Kutbu mıknatıs, S-Kutbu mıknatıs, demir ve bakır) dışarıdan birbirinin aynısı görünür. Oyuncular elindeki test araçlarını karelere yerleştirir. Hissettikleri itme, çekme ya da tepkisizlik üzerinden mantıksal çıkarım yaparak gizli maddeleri bulur ve kareye doğru bayrağı diker.
+Tabladaki 16 gizli madde (N-Kutbu mıknatıs, S-Kutbu mıknatıs, demir ve bakır) dışarıdan birbirinin aynısı görünür. Oyuncular test araçlarını karelere yerleştirir. Hissettikleri itme, çekme ya da tepkisizlik üzerinden mantıksal çıkarım yaparak gizli maddeleri bulur ve kareye doğru tespit taşını koyar.
 
 > Bu proje, Bilsem Proje Grubu'nun TÜBİTAK ve Teknofest çalışmaları kapsamında geliştirilmektedir. Dijital sürüm, gerçek masa oyununun kurallarını ve dengesini test etmek için hazırlanmıştır.
 
@@ -16,6 +18,16 @@ Tabladaki 16 gizli madde (N-Kutbu mıknatıs, S-Kutbu mıknatıs, demir ve bakı
 | **Bakır (Cu) / Nötr** | Tepki yok | Tepki yok | Manyetik olmayan metal |
 
 İtme tepkisi yalnızca iki mıknatıs arasında oluştuğu için oyundaki en kesin veridir.
+
+## 🕹️ Nasıl oynanır? (web sürümü)
+
+1. **Oyunu aç:** <https://bilsemprojegrubu.github.io/Manyetik-His/> (bilgisayar, tablet ya da telefon; kurulum yok).
+2. **Mod seç:** Seviye 1 (tek kişi), yapay zekâya karşı, ya da 2–8 kişilik Seviye 2. İstersen Uzman ve Blöf modlarını aç.
+3. **Test et:** Sağdaki **test araçlarından** (Demir ya da N-Kutbu piyonu) birini sürükleyip bir kareye bırak. Piyonun tepkisi (⬇ çekme, ⬆ itme, • tepki yok) kareye not edilir.
+4. **Çıkarım yap:** Tepkileri yukarıdaki tabloyla karşılaştır. İtme kesin bilgidir: itilen kare N-Kutbu mıknatıstır.
+5. **Taş bırak:** Emin olduğun kareye doğru **tespit taşını** (N, S, Fe, Cu) sürükle. Telefonda önce taşa ya da araca dokun, sonra kareye dokun.
+6. **Bitir:** Tüm kareler dolunca tabla açılır, doğrular yeşil, yanlışlar kırmızı çerçevelenir ve puanlar gösterilir. Seviye 1 skorun **🏆 Skor Tablosu**'na kaydedilir.
+7. **Öğren:** Ana menüdeki **📚 Kartlara Göz At** bölümünden her malzemenin bilgi kartını (ön yüz: oyun etkisi, arka yüz: fizik bilgisi) oku.
 
 ## 🎮 Oyun modları
 
@@ -59,27 +71,48 @@ Kısayollar: **F11** tam ekran, **Esc** tam ekrandan çıkış.
 
 ## ⚙️ Ayarlar
 
-Dosyanın başındaki `AYARLAR` bölümünden denge testleri için şunları değiştirebilirsin:
+Denge testleri için [`script.js`](script.js) dosyasının başındaki `AYARLAR` bölümünden şunlar değiştirilebilir:
 
-- `COMPOSITION`: Tablodaki madde sayıları (toplam 16 olmalı)
 - `L1_CORRECT`, `L1_WRONG`: Seviye 1 puanları
 - `L2_CORRECT`, `L2_WRONG`: Seviye 2 puanları
+- `EXPERT_FREE_TESTS`: Uzman modunda ücretsiz test sayısı
+- `PASS_ROUNDS_FOR_FORCED`: Zorunlu Tespit Turu için gereken art arda pas turu
+- `BLUFF_CAUGHT`, `BLUFF_FALSE_ALARM`: Blöf itirazı puanları
+- `compositionFor()`: Tablodaki madde dağılımı
 
 ## 🗺️ Yol haritası
 
 - [x] Seviye 1 (tek oyunculu, zamana karşı)
-- [x] Seviye 2 (aynı bilgisayarda çok oyunculu)
-- [x] Tam ekran desteği
-- [ ] Çok oyunculu modun testleri
-- [ ] Skor kaydı ve rekor tablosu
-- [ ] Ses ve animasyonlar
-- [ ] Zorluk ayarları
+- [x] Seviye 2 (aynı cihazda çok oyunculu)
+- [x] Web sürümü ve tam ekran desteği
+- [x] Skor kaydı ve rekor tablosu (Supabase)
+- [x] Animasyonlar
+- [x] Zorluk ayarları (Uzman modu)
+- [x] Yapay zekâ rakibi, blöf modu, 8 oyuncuya kadar
+- [x] Bilgi kartları
+- [ ] Ses efektleri
+- [ ] İnternet üzerinden uzaktan çok oyunculu (Supabase Realtime)
+- [ ] Hesap girişi ve kişisel skorlar
+
+## 📜 Sürüm geçmişi
+
+| Sürüm | Tarih | Neler değişti |
+|---|---|---|
+| **v3.0** | 23 Eki 2026 | Ahşap temalı yeni arayüz. "Test et / bayrak dik" yerine etkileşimli kare **tespit taşları** ve altı kare **piyon test araçları** (sürükle-bırak). Taş bırakma ve çekme/itme/tepki yok animasyonları. **Yapay zekâya karşı** 2 kişilik mod. **Blöf modu** (blöf, itiraz, puanlama). **8 oyuncuya kadar** (5+ oyuncuda n×n tabla). **Uzman modu** (24 ücretsiz test). **Kartlara Göz At** (5 bilgi kartı, ön/arka yüz). Proje raporuyla uyum: her turda araç seçimi, zorunlu test, pas ve Zorunlu Tespit Turu. |
+| **v2.1** | 23 Eki 2026 | **Supabase skor tablosu:** Seviye 1 skoru kaydedilir, menüden en iyi 10 görülür. Oyun GitHub Pages ile yayına alındı. |
+| **v2.0** | 16 Eki 2026 | **Web sürümü** (HTML, CSS, JS): oyun tarayıcıda, kurulum olmadan oynanır. |
+| **v1.1** | 11 Eki 2026 | Pencere büyütme ve F11 tam ekran desteği, README ve oyun tanıtımı. |
+| **v1.0** | 11 Eki 2026 | İlk sürüm: Tkinter ile masaüstü oyun (Seviye 1 ve Seviye 2). |
 
 ## 📄 Dosyalar
 
 | Dosya | Açıklama |
 |---|---|
-| [`manyetik_his.py`](manyetik_his.py) | Oyunun tamamı (tek dosya) |
+| [`index.html`](index.html) | Web sürümünün sayfası |
+| [`style.css`](style.css) | Ahşap tema, taşlar, piyonlar ve animasyonlar |
+| [`script.js`](script.js) | Oyun mantığı, yapay zekâ, blöf ve skor tablosu |
+| [`cards.js`](cards.js) | Bilgi kartlarının içeriği |
+| [`manyetik_his.py`](manyetik_his.py) | Eski masaüstü sürümü (v1, Tkinter) |
 | `README.md` | Bu tanıtım sayfası |
 
 ---

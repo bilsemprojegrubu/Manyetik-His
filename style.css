@@ -51,6 +51,7 @@ body {
 .menu-chk { text-align: left; max-width: 380px; margin: 4px auto 8px; }
 .menu-note { font-size: 0.85rem; margin-bottom: 8px; color: var(--wood-darker); }
 .menu-links { margin-top: 18px; }
+.version { margin-top: 18px; font-size: 0.8rem; color: var(--wood-darker); opacity: 0.8; }
 
 .big-btn {
   display: block;
