@@ -895,6 +895,7 @@ function endTurn() {
   g.testedThisTurn = false;
   g.flaggedThisTurn = false;
   sel = null;
+  if (g.ai >= 0 && g.current !== g.ai && !g.over) Ses.play("sira"); // sıra sana döndü
   beginTurn();
 }
 
@@ -1069,6 +1070,7 @@ async function aiTurn() {
         const said = aiDecideAnnouncement(g, p, t.cell, t.tool, real);
         const entry = g.record(t.cell, p, t.tool, real, said);
         g.claim = { cell: t.cell, tool: t.tool, said, real, bluffed: said !== real, player: p, entry };
+        Ses.play("acikla");
         say(`${g.players[p]} açıkladı: ${cellName(t.cell, g.size)} karesi, ${TOOL_NAMES[t.tool]}:\n${REACTION_TEXT[said]}`);
       }
       refresh();
