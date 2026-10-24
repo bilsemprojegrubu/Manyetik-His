@@ -1,6 +1,6 @@
 # 🧲 MANYETİK-HİS: Kutupların Savaşı
 
-**Güncel oyun sürümü: v4.1** · **[▶️ Oyunu oyna: bilsemprojegrubu.github.io/Manyetik-His](https://bilsemprojegrubu.github.io/Manyetik-His/)** · [Oyun sürümleri](#-oyun-sürümleri)
+**Güncel oyun sürümü: v4.2** · **[▶️ Oyunu oyna: bilsemprojegrubu.github.io/Manyetik-His](https://bilsemprojegrubu.github.io/Manyetik-His/)** · [Oyun sürümleri](#-oyun-sürümleri)
 
 Manyetik-His, görünmeyen manyetik kuvvetleri oyun yoluyla öğreten **eğitici bir mantık, hafıza ve manyetizma masa oyunudur**. Bu depoda oyunun dijitalleştirilmiş test sürümü ve güncellemeleri yer alır.
 
@@ -104,6 +104,7 @@ Bu tablo oyunun kendi sürümlerini anlatır: kurallar, modlar, oynanış ve gö
 
 | Oyun sürümü | Tarih | Oyunda neler değişti |
 |---|---|---|
+| **v4.2** | 24 Eki 2026 | Giriş ve kayıt formlarından örnek isim yazıları kaldırıldı. |
 | **v4.1** | 24 Eki 2026 | **E-posta ile giriş (Medar gibi):** giriş ve kayıt alanı "E-posta veya kullanıcı adı"; içinde `@` varsa gerçek e-posta olarak işlenir. Yönetici panelinde kullanıcıların e-postası görünür. |
 | **v4.0** | 24 Eki 2026 | **Çevrimiçi çok oyunculu mod:** arkadaşlarla farklı cihazlardan oyna. Hesap açma, **yönetici onayı** ve davet kodu; yönetici panelinde başvuruları onaylama, başkasını yönetici yapma. **Oda kurma** (5 harflik kod ya da bağlantı), kurucu oyuncu çıkarabilir, odayı devredebilir, oyunu başlatır, bitince yeni oyun açar. 2–8 oyuncu, blöf modu çevrimiçi de çalışır. Tahta ve kurallar sunucuda olduğu için hile yapılamaz. Başkasının hamlesi kendi ekranında animasyonla görünür. |
 | **v3.2** | 24 Eki 2026 | **Daha anlaşılır animasyonlar:** çekmede kare yeşil yanıp piyon yuvaya yapışır, itmede kare kırmızı yanıp piyon havaya fırlar (oklar ve açıklayıcı balonla); tepki yoksa piyon sakin oturur. **Kaydırma hatası düzeltildi:** test sırasında ekran kayarsa piyon kareyle birlikte kayar, kareden çıkmaz. **Blöf modu:** menüde YZ düğmesinin üstüne alındı. Test sonrası gerçek tepkiyi sen görürsün, "Blöf yapma" ya da "Blöf yap" seçersin; rakibin açıklaması için "Blöf yapıyor (itiraz)" ya da "Doğru söylüyor (kabul)" seçeneği çıkar. Karar paneli ekrana otomatik kayar. |
@@ -127,7 +128,7 @@ Bu tablo oyunun kendi sürümlerini anlatır: kurallar, modlar, oynanış ve gö
 | [`manyetik_his.py`](manyetik_his.py) | Eski masaüstü sürümü (v1, Tkinter) |
 | `README.md` | Bu tanıtım sayfası |
 
-> **Güncelleme notu:** `index.html` içindeki dosya bağlantılarındaki `?v=4.1` numarasını (`style.css`, `cards.js`, `script.js`, `online.js`, `vendor/supabase.js`) her sürümde artır. Böylece telefon ve tarayıcılar eski dosyaları önbellekten göstermez.
+> **Güncelleme notu:** `index.html` içindeki dosya bağlantılarındaki `?v=4.2` numarasını (`style.css`, `cards.js`, `script.js`, `online.js`, `vendor/supabase.js`) her sürümde artır. Böylece telefon ve tarayıcılar eski dosyaları önbellekten göstermez.
 
 ---
 
