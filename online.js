@@ -192,9 +192,9 @@ function olViewAuth() {
   const tabs = olEl("div", { class: "ol-tabs" },
     olEl("button", { type: "button", class: "ol-tab" + (!reg ? " active" : ""), onclick: () => { ol.authTab = "giris"; ol.error = ""; olRender(); } }, "Giriş yap"),
     olEl("button", { type: "button", class: "ol-tab" + (reg ? " active" : ""), onclick: () => { ol.authTab = "kayit"; ol.error = ""; olRender(); } }, "Kayıt ol"));
-  const user = olEl("input", { type: "text", autocomplete: "username", autocapitalize: "none", autocorrect: "off", spellcheck: "false", maxlength: "60", placeholder: "ornek@eposta.com", required: true });
+  const user = olEl("input", { type: "text", autocomplete: "username", autocapitalize: "none", autocorrect: "off", spellcheck: "false", maxlength: "60", placeholder: "E-posta adresin", required: true });
   const pass = olEl("input", { type: "password", autocomplete: reg ? "new-password" : "current-password", minlength: "6", required: true });
-  const name = olEl("input", { type: "text", maxlength: "20", placeholder: "ör. Ayşe" });
+  const name = olEl("input", { type: "text", maxlength: "20" });
   const code = olEl("input", { type: "text", maxlength: "20", placeholder: "Varsa davet kodun", value: ol.inviteCode });
   const form = olEl("form", { class: "ol-form", onsubmit: (e) => {
     e.preventDefault();
