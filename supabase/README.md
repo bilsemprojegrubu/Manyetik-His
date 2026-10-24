@@ -67,6 +67,16 @@ Bu adım yalnızca ilk yönetici için gerekir. Sonrasında yönetim panelinden 
 3. Kurucu en az 2 oyuncu olunca **Oyunu başlat** der. 5 ve üzeri oyuncuda tabla büyür (n×n).
 4. Oyun bitince kurucu **Yeni oyun için odayı aç** diyebilir.
 
+## Sıralama
+Bir çevrimiçi oyun bittiğinde her oyuncunun puanı **otomatik kaydedilir**. Ana sayfadaki **🏆 Sıralama**
+düğmesi iki liste gösterir:
+- **Sıralama:** önce galibiyet sayısı, eşitlikte ortalama puan (sonra maç sayısı). Beraberlikte en yüksek puanı
+  alanların hepsi galibiyet sayılır. Sütunlar: maç, galibiyet (Gal.), ortalama puan (Ort.).
+- **Son maçlar:** son 10 maçın oyuncuları ve puanları.
+
+Kayıtlar oda silinse de kalır. Sıralamayı yalnızca onaylı hesaplar görebilir. Sıralama özelliği için SQL dosyasını
+(güncel hâliyle) **bir kez daha çalıştırmak** gerekir; veriye dokunmaz. Yalnızca **bitmiş** oyunlar sayılır.
+
 ## Bilinmesi gerekenler
 - **Gecikme:** Oyun, sunucuyu yaklaşık 1,2 saniyede bir yoklar; arkadaşlarınızın hamlesi birkaç saniye içinde görünür.
 - **Bağlantısı kopan oyuncu:** Kurucu, bekleme ekranındaki **Sırayı geç** düğmesiyle sırayı atlatabilir.
@@ -84,7 +94,7 @@ Bu adım yalnızca ilk yönetici için gerekir. Sonrasında yönetim panelinden 
 ## Test durumu (dürüst özet)
 SQL dosyası gerçek bir **Postgres 16** üzerinde çalıştırılarak denendi (Supabase'in `auth` şeması taklit edilerek):
 hesap ve onay, davet kodu, yetki ve hile denemeleri, oda yönetimi, sırayla hamleler, blöf ve itiraz, zorunlu
-tespit turu, puanlar, taş limiti, oda limiti (73 kontrol). Arayüz, bu fonksiyonları çağıran sahte bir Supabase
+tespit turu, puanlar, taş limiti, oda limiti, maç kaydı ve sıralama (86 kontrol). Arayüz, bu fonksiyonları çağıran sahte bir Supabase
 istemcisiyle üç ayrı tarayıcı sayfasında (yönetici, iki oyuncu) uçtan uca denendi. **Gerçek bir Supabase
 projesine karşı denenmedi**; ilk kurulumdan sonra yukarıdaki "Oynama" adımlarını iki farklı tarayıcıda deneyin.
 Bir hata görürseniz ekranda çıkan mesajı iletin.
