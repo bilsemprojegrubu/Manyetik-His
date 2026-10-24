@@ -1,6 +1,6 @@
 # 🧲 MANYETİK-HİS: Kutupların Savaşı
 
-**Güncel oyun sürümü: v4.4** · **[▶️ Oyunu oyna: bilsemprojegrubu.github.io/Manyetik-His](https://bilsemprojegrubu.github.io/Manyetik-His/)** · [Oyun sürümleri](#-oyun-sürümleri)
+**Güncel oyun sürümü: v4.5** · **[▶️ Oyunu oyna: bilsemprojegrubu.github.io/Manyetik-His](https://bilsemprojegrubu.github.io/Manyetik-His/)** · [Oyun sürümleri](#-oyun-sürümleri)
 
 Manyetik-His, görünmeyen manyetik kuvvetleri oyun yoluyla öğreten **eğitici bir mantık, hafıza ve manyetizma masa oyunudur**. Bu depoda oyunun dijitalleştirilmiş test sürümü ve güncellemeleri yer alır.
 
@@ -104,7 +104,7 @@ Bu tablo oyunun kendi sürümlerini anlatır: kurallar, modlar, oynanış ve gö
 
 | Oyun sürümü | Tarih | Oyunda neler değişti |
 |---|---|---|
-| **v4.4** | 24 Eki 2026 | Piyonun kareye giderkenki ses efekti daha hafif ve yumuşak yapıldı. |
+| **v4.5** | 24 Eki 2026 | Yapay zekâya karşı oyunda ses: blöfte yapay zekâ tepkiyi açıklarken ses çalar, sıra sana dönünce "sıra sende" uyarısı gelir. |\n| **v4.4** | 24 Eki 2026 | Piyonun kareye giderkenki ses efekti daha hafif ve yumuşak yapıldı. |
 | **v4.3** | 24 Eki 2026 | **Ses efektleri:** taş bırakma, piyonun uçuşu, çekme / itme / tepki yok, blöf ve itiraz, sıra sende uyarısı, zorunlu tur ve oyun sonu sesleri. Sağ üstteki 🔊 düğmesiyle kapatılır. **Çevrimiçi sıralama:** bitmiş çevrimiçi maçlar kaydedilir; sıralama (galibiyet, ortalama puan) ve son maçlar listesi. |
 | **v4.2** | 24 Eki 2026 | Giriş ve kayıt formlarından örnek isim yazıları kaldırıldı. |
 | **v4.1** | 24 Eki 2026 | **E-posta ile giriş (Medar gibi):** giriş ve kayıt alanı "E-posta veya kullanıcı adı"; içinde `@` varsa gerçek e-posta olarak işlenir. Yönetici panelinde kullanıcıların e-postası görünür. |
@@ -131,7 +131,7 @@ Bu tablo oyunun kendi sürümlerini anlatır: kurallar, modlar, oynanış ve gö
 | [`manyetik_his.py`](manyetik_his.py) | Eski masaüstü sürümü (v1, Tkinter) |
 | `README.md` | Bu tanıtım sayfası |
 
-> **Güncelleme notu:** `index.html` içindeki dosya bağlantılarındaki `?v=4.4` numarasını (`style.css`, `cards.js`, `script.js`, `online.js`, `vendor/supabase.js`) her sürümde artır. Böylece telefon ve tarayıcılar eski dosyaları önbellekten göstermez.
+> **Güncelleme notu:** `index.html` içindeki dosya bağlantılarındaki `?v=4.5` numarasını (`style.css`, `cards.js`, `script.js`, `online.js`, `vendor/supabase.js`) her sürümde artır. Böylece telefon ve tarayıcılar eski dosyaları önbellekten göstermez.
 
 ---
 
