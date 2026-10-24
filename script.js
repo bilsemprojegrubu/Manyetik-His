@@ -426,6 +426,7 @@ document.getElementById("btn-help").addEventListener("click", () => {
     "Sıradaki oyuncu itiraz edebilir: blöfü yakalarsa +10 (blöfçü -10), haksız çıkarsa -10.");
 });
 document.getElementById("btn-menu").addEventListener("click", () => {
+  if (game && game.remote) { remoteLeaveGame(); return; }
   if (confirm("Oyundan çıkıp menüye dönülsün mü?")) {
     stopTimer();
     game = null; // sürmekte olan yapay zekâ turu durur
@@ -631,12 +632,16 @@ function makePawn(tool) {
 function whyBlocked() {
   if (!game || game.over) return "Oyun bitti.";
   if (busy) return "Bir saniye...";
+  if (game.remote && game.phase === "wait") return `Sıra ${game.players[game.current]} oyuncusunda.`;
   if (game.phase === "ai") return "Sıra yapay zekâda.";
   if (game.phase === "challenge") return "Önce itiraz et ya da kabul et.";
   if (game.phase === "reveal" || game.phase === "announce") return "Önce testin sonucunu açıkla.";
   return "";
 }
 function canAct() { return whyBlocked() === ""; }
+
+// Tepsideki taşlar kimin? Yerelde sıradaki oyuncunun, çevrimiçi oyunda hep kendi taşların.
+function trayPlayer() { return game.remote ? game.me : game.current; }
 
 function toggleSelect(kind, value) {
   const why = whyBlocked();
@@ -669,7 +674,7 @@ function wireTrayItem(el, kind, value) {
     if (!start) return;
     if (!dragging && Math.hypot(e.clientX - start.x, e.clientY - start.y) > 6) {
       dragging = true;
-      ghost = kind === "tool" ? makePawn(value) : makeStone(value, game.current);
+      ghost = kind === "tool" ? makePawn(value) : makeStone(value, trayPlayer());
       ghost.classList.add("ghost");
       document.body.appendChild(ghost);
       el.classList.add("dragging");
@@ -701,7 +706,7 @@ function wireTrayItem(el, kind, value) {
 
 function renderTray() {
   if (!game) return;
-  const p = game.current;
+  const p = trayPlayer();
   const sig = [p, game.phase, game.level, sel && sel.kind + sel.value, busy ? 1 : 0,
     MATERIALS.map((m) => game.stonesLeft(p, m)).join(",")].join("|");
   if (sig === traySig) return;
@@ -768,6 +773,7 @@ function pickUpStone(i) {
 async function useTool(i, tool) {
   const why = whyBlocked();
   if (why) return say(why);
+  if (game.remote) return remoteUseTool(i, tool);
   if (game.level === 2) {
     if (game.forced) return say("Zorunlu tespit turunda test yapılmaz; bir taş yerleştirmelisin.");
     if (game.flags.has(i)) return say("Bu kare kilitli, test gerekmez.");
@@ -778,7 +784,7 @@ async function useTool(i, tool) {
   const real = react(tool, g.board[i]);
   busy = true;
   refresh();
-  await animateTool(i, tool, g.bluff ? null : real);
+  await animateTool(i, tool, g.bluff && g.ai < 0 ? null : real);
   if (g !== game) return;
   busy = false;
   finishTest(g, i, tool, real);
@@ -808,11 +814,13 @@ function finishTest(g, i, tool, real) {
 }
 
 function announce(said) {
+  if (game.remote) return remoteAnnounce(said);
   const g = game;
   const { cell, tool, real } = g.pending;
   const p = g.current;
   const entry = g.record(cell, p, tool, real, said);
   g.pending = null;
+  g.announceStep = null;
   g.claim = { cell, tool, said, real, bluffed: said !== real, player: p, entry };
   g.phase = "play";
   say(`${g.players[p]} açıkladı: ${cellName(cell, g.size)} karesi, ${TOOL_NAMES[tool]}:\n${REACTION_TEXT[said]}`);
@@ -824,6 +832,7 @@ function announce(said) {
 function placeStone(i, sym) {
   const why = whyBlocked();
   if (why) return say(why);
+  if (game.remote) return remotePlaceStone(i, sym);
   const g = game;
   const p = g.current;
   if (g.level === 2) {
@@ -957,6 +966,11 @@ function updateActions() {
   actionPanel.innerHTML = "";
   const g = game;
   if (!g || g.over) return;
+  if (g.remote) {
+    remoteBuildActions(actionPanel);
+    afterActions(g);
+    return;
+  }
   const p = g.current;
   if (g.phase === "ai") {
     actionPanel.appendChild(panelText("🤖 Yapay zekâ düşünüyor…"));
@@ -965,12 +979,12 @@ function updateActions() {
     actionPanel.appendChild(panelText(
       `${g.players[c.player]} ${cellName(c.cell, g.size)} karesini ${TOOL_NAMES[c.tool]} ile test etti ve ` +
       `"${REACTION_SHORT[c.said]}" dedi. Blöf yapıyor olabilir mi?`));
-    actionPanel.appendChild(panelBtn("🚨 İtiraz et", () => {
+    actionPanel.appendChild(panelBtn("🚨 Blöf yapıyor! (itiraz et)", () => {
       g.pendingClaim = null;
       resolveChallenge(p, c, true);
       startPlay();
     }));
-    actionPanel.appendChild(panelBtn("Kabul et", () => {
+    actionPanel.appendChild(panelBtn("✅ Doğru söylüyor (kabul et)", () => {
       g.pendingClaim = null;
       resolveChallenge(p, c, false);
       startPlay();
@@ -983,11 +997,25 @@ function updateActions() {
     }));
   } else if (g.phase === "announce") {
     const { cell, real } = g.pending;
-    actionPanel.appendChild(panelText(
-      `${cellName(cell, g.size)} karesinde gerçek tepki:\n${REACTION_TEXT[real]}\n\nNe açıklıyorsun?`));
-    actionPanel.appendChild(panelBtn("✅ Doğruyu söyle", () => announce(real)));
-    REACTIONS.filter((r) => r !== real).forEach((r) =>
-      actionPanel.appendChild(panelBtn(`🤥 Blöf: "${REACTION_SHORT[r]}" de`, () => announce(r), "alt-btn")));
+    const where = `${cellName(cell, g.size)} karesinde`;
+    if (g.announceStep === "lie") {
+      actionPanel.appendChild(panelText(
+        `Gerçek tepkiyi sen biliyorsun (${REACTION_SHORT[real]}).\nRakibine hangi tepkiyi söyleyeceksin?`));
+      REACTIONS.filter((r) => r !== real).forEach((r) =>
+        actionPanel.appendChild(panelBtn(`🤥 "${REACTION_TEXT[r]}" de`, () => announce(r))));
+      actionPanel.appendChild(panelBtn("← Vazgeç", () => {
+        g.announceStep = null;
+        updateActions();
+      }, "alt-btn"));
+    } else {
+      actionPanel.appendChild(panelText(
+        `${where} GERÇEK tepki:\n${REACTION_TEXT[real]}\n\nRakibine ne söyleyeceksin?`));
+      actionPanel.appendChild(panelBtn("✅ Blöf yapma (doğruyu söyle)", () => announce(real)));
+      actionPanel.appendChild(panelBtn("🤥 Blöf yap", () => {
+        g.announceStep = "lie";
+        updateActions();
+      }, "alt-btn"));
+    }
   } else if (g.level === 2 && g.phase === "play" && g.ai !== p) {
     if (g.forced) {
       actionPanel.appendChild(panelText("Zorunlu tespit turu: bir taş yerleştirmelisin."));
@@ -995,7 +1023,16 @@ function updateActions() {
       actionPanel.appendChild(panelBtn("Taş koymadan bitir (Pas)", endTurn, "alt-btn"));
     }
   }
+  afterActions(g);
+}
+
+function afterActions(g) {
   renderTray();
+  const needsAnswer = ["challenge", "reveal", "announce"].includes(g.phase);
+  actionPanel.classList.toggle("attention", needsAnswer);
+  if (needsAnswer && actionPanel.scrollIntoView) {
+    actionPanel.scrollIntoView({ behavior: REDUCED_MOTION ? "auto" : "smooth", block: "nearest" });
+  }
 }
 
 // ---------------- Yapay zekâ turu ----------------
@@ -1045,6 +1082,14 @@ async function aiTurn() {
 }
 
 // ---------------- Animasyonlar ----------------
+const REACTION_SUB = {
+  [PULL]: "taş yuvaya yapıştı",
+  [PUSH]: "taş havada kaldı",
+  [NONE]: "taş serbestçe oturdu",
+};
+
+// Piyon sayfa koordinatında (absolute) uçar, kareye varınca karenin içine yerleşir:
+// ekran kayarsa kareyle birlikte kayar, kareden çıkmaz.
 function animateTool(cell, tool, result) {
   return new Promise((resolve) => {
     const cellEl = cellEls[cell];
@@ -1052,33 +1097,60 @@ function animateTool(cell, tool, result) {
     const crect = cellEl.getBoundingClientRect();
     const srcEl = toolTray.querySelector(`[data-tool="${tool}"]`);
     const srect = srcEl ? srcEl.getBoundingClientRect() : crect;
+    const sx = window.scrollX, sy = window.scrollY;
     const pawn = makePawn(tool);
     pawn.classList.add("flying");
-    pawn.style.left = srect.left + srect.width / 2 + "px";
-    pawn.style.top = srect.top + srect.height / 2 + "px";
+    pawn.style.left = srect.left + sx + srect.width / 2 + "px";
+    pawn.style.top = srect.top + sy + srect.height / 2 + "px";
     document.body.appendChild(pawn);
     pawn.getBoundingClientRect(); // geçişin başlaması için yeniden akış
-    const dur = REDUCED_MOTION ? 0 : 450;
-    pawn.style.left = crect.left + crect.width / 2 + "px";
-    pawn.style.top = crect.top + crect.height / 2 + "px";
+    pawn.style.left = crect.left + sx + crect.width / 2 + "px";
+    pawn.style.top = crect.top + sy + crect.height / 2 + "px";
+
+    const FLY = REDUCED_MOTION ? 0 : 500;
+    const REACT = REDUCED_MOTION ? 100 : 1500;
+    const LEAVE = REDUCED_MOTION ? 0 : 300;
     setTimeout(() => {
+      pawn.classList.remove("flying");
+      pawn.classList.add("in-cell");
+      pawn.style.left = "";
+      pawn.style.top = "";
+      cellEl.appendChild(pawn);
       const fig = pawn.querySelector(".pawn-fig");
       fig.classList.add(result ? `react-${result}` : "react-neutral");
+      let bubble = null;
       if (result) {
-        const bubble = document.createElement("div");
-        bubble.className = `bubble bubble-${result}`;
-        bubble.textContent = REACTION_BUBBLE[result];
-        bubble.style.left = crect.left + crect.width / 2 + "px";
-        bubble.style.top = crect.top + "px";
-        document.body.appendChild(bubble);
-        setTimeout(() => bubble.remove(), REDUCED_MOTION ? 200 : 1300);
+        cellEl.classList.add(`flash-${result}`);
+        if (result !== NONE) {
+          const arrows = document.createElement("div");
+          arrows.className = `arrows arrows-${result}`;
+          const glyph = result === PULL ? "⬇" : "⬆";
+          for (let k = 0; k < 3; k++) {
+            const a = document.createElement("span");
+            a.textContent = glyph;
+            arrows.appendChild(a);
+          }
+          pawn.appendChild(arrows);
+        }
+        bubble = document.createElement("div");
+        bubble.className = `bubble bubble-${result}` + (cell < game.size ? " below" : "");
+        const big = document.createElement("strong");
+        big.textContent = REACTION_BUBBLE[result];
+        const small = document.createElement("span");
+        small.textContent = REACTION_SUB[result];
+        bubble.append(big, small);
+        cellEl.appendChild(bubble);
       }
       setTimeout(() => {
         pawn.classList.add("leaving");
-        cellEl.classList.remove("testing");
-        setTimeout(() => { pawn.remove(); resolve(); }, REDUCED_MOTION ? 0 : 250);
-      }, REDUCED_MOTION ? 100 : 950);
-    }, dur);
+        setTimeout(() => {
+          pawn.remove();
+          if (bubble) bubble.remove();
+          cellEl.classList.remove("testing", "flash-cekme", "flash-itme", "flash-yok");
+          resolve();
+        }, LEAVE);
+      }, REACT);
+    }, FLY);
   });
 }
 
@@ -1115,7 +1187,8 @@ function refresh() {
   if (!game) return;
   const g = game;
   lblTitle.textContent = `SEVİYE ${g.level}` +
-    (g.expert ? " · UZMAN" : "") + (g.bluff ? " · BLÖF" : "") + (g.ai >= 0 ? " · YZ" : "");
+    (g.expert ? " · UZMAN" : "") + (g.bluff ? " · BLÖF" : "") + (g.ai >= 0 ? " · YZ" : "") +
+    (g.remote ? ` · ODA ${g.kod}` : "");
   if (g.level === 1) {
     lblTurn.textContent = "Serbest test - hızlı ol!";
     lblTurn.style.color = "";
@@ -1126,6 +1199,7 @@ function refresh() {
   } else {
     const st = playerStyle(g.current);
     lblTurn.textContent = `${st.mark} Sıra: ${g.players[g.current]}` +
+      (g.remote && g.current === g.me ? " (sen)" : "") +
       (g.forced ? " (Zorunlu Tespit Turu)" : "");
     lblTurn.style.color = st.color;
     if (!g.over) {
@@ -1152,7 +1226,10 @@ function paintCell(i, el) {
   ]);
   if (el.dataset.sig === sig) return;
   el.dataset.sig = sig;
-  el.innerHTML = "";
+  // sürmekte olan test animasyonunun piyonu ve balonu karede kalır
+  Array.from(el.children).forEach((ch) => {
+    if (!ch.classList.contains("pawn") && !ch.classList.contains("bubble")) ch.remove();
+  });
   el.classList.toggle("locked", !!flag && g.level === 2);
 
   const label = document.createElement("span");
