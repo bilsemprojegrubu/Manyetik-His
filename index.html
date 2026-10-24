@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Manyetik-His: Kutupların Savaşı</title>
-<link rel="stylesheet" href="style.css?v=3.2">
+<link rel="stylesheet" href="style.css?v=4.0">
 </head>
 <body>
 
@@ -37,13 +37,22 @@
   <div id="board-note" class="menu-note"></div>
   <div id="name-inputs"></div>
   <button class="big-btn" id="btn-level2">Oyunu Başlat</button>
+  <button class="big-btn online-btn" id="btn-online">🌐 Arkadaşlarla Oyna (Çevrimiçi)</button>
 
   <div class="menu-links">
     <button class="big-btn alt-btn" id="btn-cards">📚 Kartlara Göz At</button>
     <button class="link-btn" id="btn-leaders">🏆 Skor Tablosu</button>
     <button class="link-btn" id="btn-help">Nasıl oynanır?</button>
   </div>
-  <div class="version">v3.2</div>
+  <div class="version">v4.0</div>
+</div>
+
+<div id="online-screen" class="screen" style="display:none">
+  <div class="online-wrap">
+    <h1>🌐 Arkadaşlarla Oyna</h1>
+    <div id="online-body"></div>
+    <button class="big-btn alt-btn" id="btn-online-back">← Ana menü</button>
+  </div>
 </div>
 
 <div id="cards-screen" class="screen" style="display:none">
@@ -98,7 +107,9 @@
   </div>
 </div>
 
-<script src="cards.js?v=3.2"></script>
-<script src="script.js?v=3.2"></script>
+<script src="cards.js?v=4.0"></script>
+<script src="vendor/supabase.js?v=4.0"></script>
+<script src="script.js?v=4.0"></script>
+<script src="online.js?v=4.0"></script>
 </body>
 </html>

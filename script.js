@@ -426,6 +426,7 @@ document.getElementById("btn-help").addEventListener("click", () => {
     "Sıradaki oyuncu itiraz edebilir: blöfü yakalarsa +10 (blöfçü -10), haksız çıkarsa -10.");
 });
 document.getElementById("btn-menu").addEventListener("click", () => {
+  if (game && game.remote) { remoteLeaveGame(); return; }
   if (confirm("Oyundan çıkıp menüye dönülsün mü?")) {
     stopTimer();
     game = null; // sürmekte olan yapay zekâ turu durur
@@ -631,12 +632,16 @@ function makePawn(tool) {
 function whyBlocked() {
   if (!game || game.over) return "Oyun bitti.";
   if (busy) return "Bir saniye...";
+  if (game.remote && game.phase === "wait") return `Sıra ${game.players[game.current]} oyuncusunda.`;
   if (game.phase === "ai") return "Sıra yapay zekâda.";
   if (game.phase === "challenge") return "Önce itiraz et ya da kabul et.";
   if (game.phase === "reveal" || game.phase === "announce") return "Önce testin sonucunu açıkla.";
   return "";
 }
 function canAct() { return whyBlocked() === ""; }
+
+// Tepsideki taşlar kimin? Yerelde sıradaki oyuncunun, çevrimiçi oyunda hep kendi taşların.
+function trayPlayer() { return game.remote ? game.me : game.current; }
 
 function toggleSelect(kind, value) {
   const why = whyBlocked();
@@ -669,7 +674,7 @@ function wireTrayItem(el, kind, value) {
     if (!start) return;
     if (!dragging && Math.hypot(e.clientX - start.x, e.clientY - start.y) > 6) {
       dragging = true;
-      ghost = kind === "tool" ? makePawn(value) : makeStone(value, game.current);
+      ghost = kind === "tool" ? makePawn(value) : makeStone(value, trayPlayer());
       ghost.classList.add("ghost");
       document.body.appendChild(ghost);
       el.classList.add("dragging");
@@ -701,7 +706,7 @@ function wireTrayItem(el, kind, value) {
 
 function renderTray() {
   if (!game) return;
-  const p = game.current;
+  const p = trayPlayer();
   const sig = [p, game.phase, game.level, sel && sel.kind + sel.value, busy ? 1 : 0,
     MATERIALS.map((m) => game.stonesLeft(p, m)).join(",")].join("|");
   if (sig === traySig) return;
@@ -768,6 +773,7 @@ function pickUpStone(i) {
 async function useTool(i, tool) {
   const why = whyBlocked();
   if (why) return say(why);
+  if (game.remote) return remoteUseTool(i, tool);
   if (game.level === 2) {
     if (game.forced) return say("Zorunlu tespit turunda test yapılmaz; bir taş yerleştirmelisin.");
     if (game.flags.has(i)) return say("Bu kare kilitli, test gerekmez.");
@@ -808,6 +814,7 @@ function finishTest(g, i, tool, real) {
 }
 
 function announce(said) {
+  if (game.remote) return remoteAnnounce(said);
   const g = game;
   const { cell, tool, real } = g.pending;
   const p = g.current;
@@ -825,6 +832,7 @@ function announce(said) {
 function placeStone(i, sym) {
   const why = whyBlocked();
   if (why) return say(why);
+  if (game.remote) return remotePlaceStone(i, sym);
   const g = game;
   const p = g.current;
   if (g.level === 2) {
@@ -958,6 +966,11 @@ function updateActions() {
   actionPanel.innerHTML = "";
   const g = game;
   if (!g || g.over) return;
+  if (g.remote) {
+    remoteBuildActions(actionPanel);
+    afterActions(g);
+    return;
+  }
   const p = g.current;
   if (g.phase === "ai") {
     actionPanel.appendChild(panelText("🤖 Yapay zekâ düşünüyor…"));
@@ -1010,6 +1023,10 @@ function updateActions() {
       actionPanel.appendChild(panelBtn("Taş koymadan bitir (Pas)", endTurn, "alt-btn"));
     }
   }
+  afterActions(g);
+}
+
+function afterActions(g) {
   renderTray();
   const needsAnswer = ["challenge", "reveal", "announce"].includes(g.phase);
   actionPanel.classList.toggle("attention", needsAnswer);
@@ -1170,7 +1187,8 @@ function refresh() {
   if (!game) return;
   const g = game;
   lblTitle.textContent = `SEVİYE ${g.level}` +
-    (g.expert ? " · UZMAN" : "") + (g.bluff ? " · BLÖF" : "") + (g.ai >= 0 ? " · YZ" : "");
+    (g.expert ? " · UZMAN" : "") + (g.bluff ? " · BLÖF" : "") + (g.ai >= 0 ? " · YZ" : "") +
+    (g.remote ? ` · ODA ${g.kod}` : "");
   if (g.level === 1) {
     lblTurn.textContent = "Serbest test - hızlı ol!";
     lblTurn.style.color = "";
@@ -1181,6 +1199,7 @@ function refresh() {
   } else {
     const st = playerStyle(g.current);
     lblTurn.textContent = `${st.mark} Sıra: ${g.players[g.current]}` +
+      (g.remote && g.current === g.me ? " (sen)" : "") +
       (g.forced ? " (Zorunlu Tespit Turu)" : "");
     lblTurn.style.color = st.color;
     if (!g.over) {

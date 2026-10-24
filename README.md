@@ -1,6 +1,6 @@
 # 🧲 MANYETİK-HİS: Kutupların Savaşı
 
-**Güncel oyun sürümü: v3.2** · **[▶️ Oyunu oyna: bilsemprojegrubu.github.io/Manyetik-His](https://bilsemprojegrubu.github.io/Manyetik-His/)** · [Oyun sürümleri](#-oyun-sürümleri)
+**Güncel oyun sürümü: v4.0** · **[▶️ Oyunu oyna: bilsemprojegrubu.github.io/Manyetik-His](https://bilsemprojegrubu.github.io/Manyetik-His/)** · [Oyun sürümleri](#-oyun-sürümleri)
 
 Manyetik-His, görünmeyen manyetik kuvvetleri oyun yoluyla öğreten **eğitici bir mantık, hafıza ve manyetizma masa oyunudur**. Bu depoda oyunun dijitalleştirilmiş test sürümü ve güncellemeleri yer alır.
 
@@ -27,7 +27,8 @@ Tabladaki 16 gizli madde (N-Kutbu mıknatıs, S-Kutbu mıknatıs, demir ve bakı
 4. **Çıkarım yap:** Tepkileri yukarıdaki tabloyla karşılaştır. İtme kesin bilgidir: itilen kare N-Kutbu mıknatıstır.
 5. **Taş bırak:** Emin olduğun kareye doğru **tespit taşını** (N, S, Fe, Cu) sürükle. Telefonda önce taşa ya da araca dokun, sonra kareye dokun.
 6. **Bitir:** Tüm kareler dolunca tabla açılır, doğrular yeşil, yanlışlar kırmızı çerçevelenir ve puanlar gösterilir. Seviye 1 skorun **🏆 Skor Tablosu**'na kaydedilir.
-7. **Öğren:** Ana menüdeki **📚 Kartlara Göz At** bölümünden her malzemenin bilgi kartını (ön yüz: oyun etkisi, arka yüz: fizik bilgisi) oku.
+7. **Arkadaşlarla oyna (çevrimiçi):** Ana menüden **🌐 Arkadaşlarla Oyna**'ya gir, kayıt ol, yönetici onayını bekle (davet kodun varsa hemen girersin), oda kur ve oda kodunu arkadaşlarına gönder. Kurulum için [`supabase/README.md`](supabase/README.md).
+8. **Öğren:** Ana menüdeki **📚 Kartlara Göz At** bölümünden her malzemenin bilgi kartını (ön yüz: oyun etkisi, arka yüz: fizik bilgisi) oku.
 
 ## 🎮 Oyun modları
 
@@ -46,6 +47,8 @@ Web sürümünde ([`index.html`](index.html)) test araçları **piyonlar**, tesp
 - **Tabla boyutu:** 2–4 oyuncuda 4×4 (16 kare). 5–8 oyuncuda oyuncu sayısı × oyuncu sayısı (25, 36, 49, 64 kare). Malzemeler eşit dağıtılır; 5×5 ve 7×7'de 4'e bölünmeyen tek kare bakıra eklenir.
 - **Yapay zekâya karşı (2 kişilik):** Yapay zekâ, herkese açık test bilgilerinden çıkarım yapar, yalnızca kesin bildiği kareye taş koyar.
 - **Blöf modu (isteğe bağlı):** Test eden tepkiyi gizlice görür, sonra doğruyu ya da başka bir tepkiyi açıklar. Sıradaki oyuncu itiraz edebilir: blöfü yakalarsa **+10** (blöf yapan −10), haksız çıkarsa **−10**. Yapay zekâ duruma göre blöf yapar ve itiraz eder.
+
+**🌐 Arkadaşlarla Oyna (çevrimiçi, 2–8 oyuncu):** Hesap açılır, bir yönetici onaylar (davet koduyla kayıt olan hemen girer). Onaylı oyuncu oda kurar, 5 harflik kodu ya da bağlantıyı arkadaşlarına gönderir; kurucu oyunu başlatır. Yönetici paneli: başvuruları onayla / reddet, başkasını yönetici yap, davet kodu üret. Gizli tahta ve kurallar sunucuda çalışır, tarayıcıdan hile yapılamaz. Blöf modu çevrimiçi de açılabilir.
 
 **📚 Kartlara Göz At:** Ana menüden bilgi kartlarına ulaşılır. Kart metinleri ve görselleri [`cards.js`](cards.js) dosyasından eklenir.
 
@@ -91,8 +94,9 @@ Denge testleri için [`script.js`](script.js) dosyasının başındaki `AYARLAR`
 - [x] Yapay zekâ rakibi, blöf modu, 8 oyuncuya kadar
 - [x] Bilgi kartları
 - [ ] Ses efektleri
-- [ ] İnternet üzerinden uzaktan çok oyunculu (Supabase Realtime)
-- [ ] Hesap girişi ve kişisel skorlar
+- [x] İnternet üzerinden uzaktan çok oyunculu (hesap, onay, oda, yönetici paneli)
+- [ ] Anlık bağlantı (Supabase Realtime) ile daha hızlı güncelleme
+- [ ] Kişisel skorlar ve sıralama
 
 ## 📜 Oyun sürümleri
 
@@ -100,6 +104,7 @@ Bu tablo oyunun kendi sürümlerini anlatır: kurallar, modlar, oynanış ve gö
 
 | Oyun sürümü | Tarih | Oyunda neler değişti |
 |---|---|---|
+| **v4.0** | 24 Eki 2026 | **Çevrimiçi çok oyunculu mod:** arkadaşlarla farklı cihazlardan oyna. Hesap açma, **yönetici onayı** ve davet kodu; yönetici panelinde başvuruları onaylama, başkasını yönetici yapma. **Oda kurma** (5 harflik kod ya da bağlantı), kurucu oyuncu çıkarabilir, odayı devredebilir, oyunu başlatır, bitince yeni oyun açar. 2–8 oyuncu, blöf modu çevrimiçi de çalışır. Tahta ve kurallar sunucuda olduğu için hile yapılamaz. Başkasının hamlesi kendi ekranında animasyonla görünür. |
 | **v3.2** | 24 Eki 2026 | **Daha anlaşılır animasyonlar:** çekmede kare yeşil yanıp piyon yuvaya yapışır, itmede kare kırmızı yanıp piyon havaya fırlar (oklar ve açıklayıcı balonla); tepki yoksa piyon sakin oturur. **Kaydırma hatası düzeltildi:** test sırasında ekran kayarsa piyon kareyle birlikte kayar, kareden çıkmaz. **Blöf modu:** menüde YZ düğmesinin üstüne alındı. Test sonrası gerçek tepkiyi sen görürsün, "Blöf yapma" ya da "Blöf yap" seçersin; rakibin açıklaması için "Blöf yapıyor (itiraz)" ya da "Doğru söylüyor (kabul)" seçeneği çıkar. Karar paneli ekrana otomatik kayar. |
 | **v3.1** | 23 Eki 2026 | **Test araçlarının renkleri:** N-Kutbu piyonu kırmızı, Demir piyonu gri (hafıza yardımında araç adları da aynı renkte). Taşlar oyuncunun renginde kalır. **Skor kaydı:** oyun bitince isim girmek isteyip istemediğin sorulur; istemezsen skor "Oyun 1", "Oyun 2" gibi otomatik adla kaydedilir. **Hafıza yardımı:** aynı araçla tekrar test edilen karede tepki üst üste yazılmaz, her araç için bir kez görünür. |
 | **v3.0** | 23 Eki 2026 | **Görünüm:** ahşap tahta temalı arayüz. "Test et / bayrak dik" seçenekleri yerine kare **tespit taşları** (N, S, Fe, Cu) ve altı kare **piyon test araçları**; hepsi sürükle-bırak. Taş bırakma ve çekme / itme / tepki yok animasyonları. **Yeni modlar:** yapay zekâya karşı 2 kişilik oyun, blöf modu (blöf, itiraz, puanlama), Uzman modu (24 ücretsiz test). **Oyuncu sayısı:** 8 kişiye kadar; 5+ oyuncuda tabla n×n. **Bilgi kartları:** 5 kart, ön yüzde oyun etkisi, arka yüzde fizik bilgisi. **Kural düzeltmeleri:** Seviye 2'de her turda iki araçtan birini seçme, zorunlu test, pas ve Zorunlu Tespit Turu. |
@@ -115,10 +120,13 @@ Bu tablo oyunun kendi sürümlerini anlatır: kurallar, modlar, oynanış ve gö
 | [`style.css`](style.css) | Ahşap tema, taşlar, piyonlar ve animasyonlar |
 | [`script.js`](script.js) | Oyun mantığı, yapay zekâ, blöf ve skor tablosu |
 | [`cards.js`](cards.js) | Bilgi kartlarının içeriği |
+| [`online.js`](online.js) | Çevrimiçi mod: giriş, onay, yönetim paneli, odalar, oyunun sunucuyla bağlantısı |
+| [`supabase/`](supabase/) | Sunucu kurulumu: `01_cevrimici_oyun.sql` ve adım adım rehber |
+| [`vendor/supabase.js`](vendor/supabase.js) | Supabase tarayıcı kütüphanesi (MIT lisanslı, projeye dahil) |
 | [`manyetik_his.py`](manyetik_his.py) | Eski masaüstü sürümü (v1, Tkinter) |
 | `README.md` | Bu tanıtım sayfası |
 
-> **Güncelleme notu:** `index.html` içindeki `style.css?v=3.2`, `cards.js?v=3.2` ve `script.js?v=3.2` numarasını her sürümde artır. Böylece telefon ve tarayıcılar eski dosyaları önbellekten göstermez.
+> **Güncelleme notu:** `index.html` içindeki dosya bağlantılarındaki `?v=4.0` numarasını (`style.css`, `cards.js`, `script.js`, `online.js`, `vendor/supabase.js`) her sürümde artır. Böylece telefon ve tarayıcılar eski dosyaları önbellekten göstermez.
 
 ---
 
