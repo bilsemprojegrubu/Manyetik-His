@@ -152,7 +152,7 @@ begin
     select jsonb_agg(jsonb_build_object(
       'id', p.id, 'gorunen_ad', p.gorunen_ad, 'rol', p.rol, 'onayli', p.onayli,
       'davet_kodu', p.davet_kodu, 'olusturma', p.olusturma,
-      'giris', split_part(u.email, '@', 1)
+      'giris', case when u.email like '%@oyuncu.manyetik.invalid' then split_part(u.email, '@', 1) else u.email end
     ) order by p.onayli, p.olusturma desc)
     from public.profiller p join auth.users u on u.id = p.id
   ), '[]'::jsonb);
@@ -743,8 +743,10 @@ grant execute on function public.kod_gecerli(text) to anon;
 -- =============================================================================
 -- İLK YÖNETİCİ (bu komut dosyanın parçası DEĞİLDİR; ilk kayıttan sonra elle çalıştırın)
 -- =============================================================================
--- Önce uygulamadan normal kayıt olun, sonra SQL Editor'de kendi kullanıcı adınızla:
+-- Önce uygulamadan normal kayıt olun, sonra SQL Editor'de kendi e-postanızla:
 --
 --   update public.profiller set rol = 'yonetici', onayli = true
---   where id = (select id from auth.users where email = 'KULLANICIADINIZ@oyuncu.manyetik.invalid');
+--   where id = (select id from auth.users where email = 'SIZIN@EPOSTANIZ.COM');
+--
+-- (Kullanıcı adıyla kayıt olduysanız e-posta yerine 'KULLANICIADINIZ@oyuncu.manyetik.invalid' yazın.)
 -- =============================================================================
