@@ -30,7 +30,7 @@ const Ses = (() => {
   }
 
   function noise(c, out, t, o) {
-    const { dur = 0.1, gain = 0.2, type = "lowpass", f0 = 800, f1 = f0, q = 1 } = o;
+    const { dur = 0.1, gain = 0.2, type = "lowpass", f0 = 800, f1 = f0, q = 1, attack = 0 } = o;
     const n = Math.max(1, Math.floor(c.sampleRate * dur));
     const buf = c.createBuffer(1, n, c.sampleRate);
     const d = buf.getChannelData(0);
@@ -43,7 +43,12 @@ const Ses = (() => {
     f.frequency.setValueAtTime(f0, t);
     if (f1 !== f0) f.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + dur);
     const g = c.createGain();
-    g.gain.setValueAtTime(gain, t);
+    if (attack > 0) {
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(gain, t + attack);
+    } else {
+      g.gain.setValueAtTime(gain, t);
+    }
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     src.connect(f);
     f.connect(g);
@@ -58,8 +63,8 @@ const Ses = (() => {
     tik: (c, o, t) => tone(c, o, t, { f0: 1200, f1: 800, dur: 0.05, type: "triangle", gain: 0.16 }),
     // piyon kareye uçarken
     ucus: (c, o, t) => {
-      noise(c, o, t, { dur: 0.45, gain: 1.4, type: "bandpass", f0: 350, f1: 1500, q: 1.2 });
-      tone(c, o, t, { f0: 300, f1: 900, dur: 0.4, type: "triangle", gain: 0.06 });
+      // yumuşak, kısa bir "fışş": yavaş yükselir, hafifçe söner (patlama yok)
+      noise(c, o, t, { dur: 0.3, gain: 0.5, attack: 0.1, type: "bandpass", f0: 500, f1: 900, q: 0.7 });
     },
     // çekme: yuvaya şak diye yapışır, titrer
     cekme: (c, o, t) => {
