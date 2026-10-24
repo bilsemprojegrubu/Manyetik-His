@@ -6,7 +6,7 @@ Kurulum bir kez yapılır ve yaklaşık 5 dakika sürer.
 
 ## Nasıl çalışır?
 
-- **Hesaplar:** Oyuncular kullanıcı adı ve şifreyle kayıt olur. Bir **yönetici onaylayana kadar** oda kuramaz
+- **Hesaplar:** Oyuncular **e-posta adresi** (ya da kullanıcı adı) ve şifreyle kayıt olur. Bir **yönetici onaylayana kadar** oda kuramaz
   ya da odaya katılamaz. Geçerli bir **davet koduyla** kayıt olan hemen onaylanır.
 - **Yönetici:** Başvuruları onaylar ya da reddeder, başkasını yönetici yapar, davet kodu üretir.
 - **Odalar:** Onaylı bir oyuncu oda kurar, 5 harflik kodu (ya da bağlantıyı) arkadaşlarına gönderir.
@@ -25,26 +25,33 @@ Kurulum bir kez yapılır ve yaklaşık 5 dakika sürer.
 
 Daha önce kurduğunuz `skorlar` tablosuna (skor tablosu) dokunulmaz.
 
-### 2) E-posta onayını kapatın (önemli)
-Hesaplar gerçek e-posta yerine `kullaniciadi@oyuncu.manyetik.invalid` biçiminde sahte bir adresle açılır;
-bu adrese e-posta gitmez. Bu yüzden onay e-postası kapalı olmalı:
+### 2) E-posta doğrulama ayarı
+Giriş, Medar'daki gibi **"E-posta veya kullanıcı adı"** alanıyla yapılır: içinde `@` varsa gerçek e-posta,
+yoksa kullanıcı adı olarak işlenir (arka planda `kullaniciadi@oyuncu.manyetik.invalid` biçiminde sahte bir
+adres kullanılır).
 
-1. Sol menü **Authentication** → **Sign In / Providers** (eski adıyla **Providers**) → **Email**.
-2. **Confirm email** seçeneğini **kapatın** ve kaydedin.
-3. Aynı yerde **Allow new users to sign up** açık olmalı.
+1. Sol menü **Authentication** → **Sign In / Providers** → **Email**.
+2. **Allow new users to sign up** **açık** olmalı.
+3. **Confirm email** için iki seçenek var:
+   - **Kapalı (önerilen):** Kayıt olan hemen giriş yapabilir. Güvenliği yönetici onayı sağlar: onaylanmamış hesap
+     oda kuramaz. Supabase'in kendi e-posta servisi saatte çok az doğrulama e-postası gönderebildiği için
+     sınıf kaydında takılmamak için bu daha pratiktir. Kullanıcı adıyla kayıt da yalnızca bu durumda çalışır.
+   - **Açık:** Gerçek e-postayla kayıt olanlara doğrulama e-postası gider, bağlantıya tıklayınca giriş yapabilirler.
+     Çok kişi kayıt olacaksa Supabase'de özel bir e-posta servisi (SMTP) tanımlamanız gerekir.
+4. **Save changes** ile kaydedin.
 
 ### 3) İlk yöneticiyi oluşturun
-1. Oyunun sitesini açın → **🌐 Arkadaşlarla Oyna (Çevrimiçi)** → **Kayıt ol**. Kendi kullanıcı adınızı
-   (ör. `hoca`) ve şifrenizi yazın. "Onay bekleniyor" ekranı gelir.
-2. Supabase'de **SQL Editor** → **New query**, kendi kullanıcı adınızla şunu çalıştırın:
+1. Oyunun sitesini açın → **🌐 Arkadaşlarla Oyna (Çevrimiçi)** → **Kayıt ol**. E-posta adresinizi, görünen
+   adınızı ve şifrenizi yazın. "Onay bekleniyor" ekranı gelir.
+2. Supabase'de **SQL Editor** → **New query**, kendi e-postanızla şunu çalıştırın:
 
    ```sql
    update public.profiller set rol = 'yonetici', onayli = true
-   where id = (select id from auth.users where email = 'hoca@oyuncu.manyetik.invalid');
+   where id = (select id from auth.users where email = 'sizin@epostaniz.com');
    ```
 
-   (`hoca` yerine kendi kullanıcı adınızı yazın; Türkçe harfler `ç→c, ğ→g, ı→i, ö→o, ş→s, ü→u` olur,
-   boşluk nokta olur: `Ayşe Yılmaz` → `ayse.yilmaz`.)
+   (E-posta küçük harfle yazılır. Kullanıcı adıyla kayıt olduysanız e-posta yerine
+   `kullaniciadiniz@oyuncu.manyetik.invalid` yazın; Türkçe harfler `ç→c, ğ→g, ı→i, ö→o, ş→s, ü→u`, boşluk nokta olur.)
 3. Sayfaya dönüp **Onaylandı mı, kontrol et**'e basın. Ana sayfada **🛠 Yönetim paneli** görünür.
 
 Bu adım yalnızca ilk yönetici için gerekir. Sonrasında yönetim panelinden başkalarını yönetici yaparsınız.
@@ -64,8 +71,7 @@ Bu adım yalnızca ilk yönetici için gerekir. Sonrasında yönetim panelinden 
 - **Gecikme:** Oyun, sunucuyu yaklaşık 1,2 saniyede bir yoklar; arkadaşlarınızın hamlesi birkaç saniye içinde görünür.
 - **Bağlantısı kopan oyuncu:** Kurucu, bekleme ekranındaki **Sırayı geç** düğmesiyle sırayı atlatabilir.
   Oyuncu sayfayı yenilerse **Odalarım** listesinden odaya geri döner.
-- **Şifre sıfırlama yoktur** (gerçek e-posta kullanılmıyor). Şifresini unutanın hesabını yönetici silip
-  oyuncu yeniden kayıt olur.
+- **Şifre sıfırlama henüz yoktur.** Şifresini unutanın hesabını yönetici silip oyuncu yeniden kayıt olur.
 - Odalar 3 gün sonra otomatik silinir. Bir kullanıcı en fazla 5 açık oda kurabilir.
 
 ## Güvenlik notları

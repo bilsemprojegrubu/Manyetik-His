@@ -17,14 +17,22 @@ function olNormalizeUsername(raw) {
     .replace(/[çğıöşü]/g, (ch) => OL_TR[ch] || ch)
     .replace(/\s+/g, ".").replace(/[^a-z0-9._-]/g, "");
 }
-function olToEmail(username) { return `${olNormalizeUsername(username)}@${OL_DOMAIN}`; }
+// Medar'daki gibi: "@" içeriyorsa gerçek e-posta, yoksa kullanıcı adı (sahte alan adıyla).
+function olIsEmail(id) { return String(id).includes("@"); }
+function olToEmail(id) {
+  const v = String(id).trim();
+  return olIsEmail(v) ? v.toLowerCase() : `${olNormalizeUsername(v)}@${OL_DOMAIN}`;
+}
+const OL_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function olErrorText(msg) {
   const m = String(msg || "");
-  if (/Invalid login credentials/i.test(m)) return "Kullanıcı adı ya da şifre hatalı.";
-  if (/already registered|already been registered/i.test(m)) return "Bu kullanıcı adı alınmış, başka bir tane dene.";
+  if (/Invalid login credentials/i.test(m)) return "E-posta/kullanıcı adı ya da şifre hatalı.";
+  if (/already registered|already been registered|already exists/i.test(m)) return "Bu e-posta ya da kullanıcı adıyla zaten bir hesap var. Giriş yapmayı dene.";
   if (/at least 6 characters|weak/i.test(m)) return "Şifre en az 6 karakter olmalı.";
-  if (/Email not confirmed/i.test(m)) return "Hesap onaylanmamış görünüyor. Yönetici Supabase'de 'Confirm email' ayarını kapatmalı.";
+  if (/Email not confirmed/i.test(m)) return "E-posta adresin henüz doğrulanmadı. Gelen kutundaki bağlantıya tıkla.";
+  if (/rate limit|too many/i.test(m)) return "Çok fazla deneme yapıldı. Birkaç dakika sonra tekrar dene.";
+  if (/invalid.*email|unable to validate email/i.test(m)) return "E-posta adresi geçerli görünmüyor.";
   if (/JWT|expired|not authenticated/i.test(m)) return "Oturumun süresi dolmuş, tekrar giriş yap.";
   if (/Failed to fetch|NetworkError|Load failed/i.test(m)) return "İnternet bağlantısı yok ya da sunucuya ulaşılamıyor.";
   if (/Could not find the function|schema cache/i.test(m)) return "Sunucu kurulumu eksik: supabase/01_cevrimici_oyun.sql dosyası çalıştırılmamış.";
@@ -184,17 +192,17 @@ function olViewAuth() {
   const tabs = olEl("div", { class: "ol-tabs" },
     olEl("button", { type: "button", class: "ol-tab" + (!reg ? " active" : ""), onclick: () => { ol.authTab = "giris"; ol.error = ""; olRender(); } }, "Giriş yap"),
     olEl("button", { type: "button", class: "ol-tab" + (reg ? " active" : ""), onclick: () => { ol.authTab = "kayit"; ol.error = ""; olRender(); } }, "Kayıt ol"));
-  const user = olEl("input", { type: "text", autocomplete: "username", maxlength: "30", placeholder: "ör. ayse.yilmaz", required: true });
+  const user = olEl("input", { type: "text", autocomplete: "username", autocapitalize: "none", autocorrect: "off", spellcheck: "false", maxlength: "60", placeholder: "ornek@eposta.com", required: true });
   const pass = olEl("input", { type: "password", autocomplete: reg ? "new-password" : "current-password", minlength: "6", required: true });
-  const name = olEl("input", { type: "text", maxlength: "20", placeholder: "Arkadaşların bunu görür" });
+  const name = olEl("input", { type: "text", maxlength: "20", placeholder: "ör. Ayşe" });
   const code = olEl("input", { type: "text", maxlength: "20", placeholder: "Varsa davet kodun", value: ol.inviteCode });
   const form = olEl("form", { class: "ol-form", onsubmit: (e) => {
     e.preventDefault();
     olDo(() => reg ? olRegister(user.value, pass.value, name.value, code.value) : olLogin(user.value, pass.value));
   } },
-    olField("Kullanıcı adı", user),
+    olField("E-posta veya kullanıcı adı", user),
     olField("Şifre (en az 6 karakter)", pass),
-    reg ? olField("Görünen ad", name) : null,
+    reg ? olField("Görünen ad (arkadaşların bunu görür)", name) : null,
     reg ? olField("Davet kodu (isteğe bağlı)", code) : null,
     olEl("button", { type: "submit", class: "big-btn", disabled: ol.working }, reg ? "Kayıt ol" : "Giriş yap"));
   olAdd(
@@ -204,29 +212,39 @@ function olViewAuth() {
     tabs, form);
 }
 
-async function olLogin(username, password) {
-  const email = olToEmail(username);
-  if (!olNormalizeUsername(username)) throw new Error("Kullanıcı adını yaz.");
-  const { error } = await olSupa().auth.signInWithPassword({ email, password });
+async function olLogin(id, password) {
+  if (!String(id).trim()) throw new Error("E-posta adresini ya da kullanıcı adını yaz.");
+  const { error } = await olSupa().auth.signInWithPassword({ email: olToEmail(id), password });
   if (error) throw new Error(olErrorText(error.message));
   await olLoadProfile();
 }
 
-async function olRegister(username, password, display, invite) {
-  const norm = olNormalizeUsername(username);
-  if (norm.length < 3) throw new Error("Kullanıcı adı en az 3 harf/rakam olmalı.");
+async function olRegister(id, password, display, invite) {
+  const raw = String(id).trim();
+  if (olIsEmail(raw)) {
+    if (!OL_EMAIL_RE.test(raw)) throw new Error("E-posta adresi geçerli görünmüyor.");
+  } else if (olNormalizeUsername(raw).length < 3) {
+    throw new Error("Kullanıcı adı en az 3 harf/rakam olmalı (ya da e-posta adresini yaz).");
+  }
   const code = (invite || "").trim();
   if (code) {
     const ok = await olRpc("kod_gecerli", { p_kod: code });
     if (!ok) throw new Error("Bu davet kodu geçerli değil, süresi dolmuş ya da kullanım sınırına ulaşmış.");
   }
+  const fallbackName = olIsEmail(raw) ? raw.split("@")[0] : olNormalizeUsername(raw);
   const { data, error } = await olSupa().auth.signUp({
-    email: olToEmail(norm), password,
-    options: { data: { gorunen_ad: (display || "").trim() || norm, davet_kodu: code || undefined } },
+    email: olToEmail(raw), password,
+    options: { data: { gorunen_ad: (display || "").trim() || fallbackName.slice(0, 20), davet_kodu: code || undefined } },
   });
   if (error) throw new Error(olErrorText(error.message));
   if (!data || !data.session) {
-    throw new Error("Kayıt alındı ama oturum açılmadı. Yönetici Supabase'de 'Confirm email' ayarını kapatmalı.");
+    // Supabase'de "Confirm email" açıksa oturum doğrulamadan sonra açılır
+    if (olIsEmail(raw)) {
+      ol.notice = "Kayıt alındı. E-postana gelen bağlantıyla hesabını doğruladıktan sonra giriş yap.";
+      ol.authTab = "giris";
+      return;
+    }
+    throw new Error("Kayıt alındı ama oturum açılmadı. Kullanıcı adıyla kayıt için Supabase'de 'Confirm email' kapalı olmalı.");
   }
   await olLoadProfile();
 }
@@ -433,7 +451,7 @@ function olViewAdmin() {
   const reload = async (fn) => { await fn(); await olLoadAdmin(); };
   if (ol.adminTab === "bekleyen") {
     olAdd(bekleyen.length ? bekleyen.map((u) => olEl("div", { class: "ol-row" },
-      olEl("div", {}, olEl("strong", {}, u.gorunen_ad), olEl("div", { class: "ol-muted" }, `Giriş adı: ${u.giris}`)),
+      olEl("div", {}, olEl("strong", {}, u.gorunen_ad), olEl("div", { class: "ol-muted" }, `E-posta / giriş adı: ${u.giris}`)),
       olEl("div", { class: "ol-actions" },
         olSmallBtn("✅ Onayla", () => olDo(() => reload(() => olRpc("admin_onayla", { p_id: u.id, p_onayli: true })))),
         olSmallBtn("Reddet", () => { if (confirm(`${u.gorunen_ad} başvurusu silinsin mi?`)) olDo(() => reload(() => olRpc("admin_sil", { p_id: u.id }))); }, "ol-danger"))))
@@ -442,7 +460,7 @@ function olViewAdmin() {
     olAdd(ol.adminUsers.filter((u) => u.onayli).map((u) => olEl("div", { class: "ol-row" },
       olEl("div", {}, olEl("strong", {}, u.gorunen_ad), " ",
         u.rol === "yonetici" ? olEl("span", { class: "ol-badge" }, "Yönetici") : null,
-        olEl("div", { class: "ol-muted" }, `Giriş adı: ${u.giris}`)),
+        olEl("div", { class: "ol-muted" }, `E-posta / giriş adı: ${u.giris}`)),
       u.id === ol.profile.id ? olEl("span", { class: "ol-muted" }, "(sen)") : olEl("div", { class: "ol-actions" },
         u.rol === "yonetici"
           ? olSmallBtn("Yöneticilikten al", () => olDo(() => reload(() => olRpc("admin_rol", { p_id: u.id, p_rol: "ogrenci" }))))
