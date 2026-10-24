@@ -68,7 +68,24 @@ create table if not exists public.oda_gizli (
   iddia_blof       boolean     -- son açıklama blöf müydü
 );
 
+-- Bitmiş çevrimiçi oyunların sonuçları (sıralama için). Odalar silinse de kayıt kalır.
+create table if not exists public.mac_sonuclari (
+  id             bigint generated always as identity primary key,
+  mac_id         uuid not null,                    -- aynı oyunun satırlarını birleştirir
+  oda_kod        text not null,
+  kullanici_id   uuid not null references auth.users (id) on delete cascade,
+  ad             text not null,
+  puan           int not null,
+  kazandi        boolean not null,                 -- en yüksek puanı alan(lar)
+  oyuncu_sayisi  int not null,
+  blof           boolean not null default false,
+  bitis          timestamptz not null default now()
+);
+create index if not exists mac_sonuclari_kullanici_idx on public.mac_sonuclari (kullanici_id);
+create index if not exists mac_sonuclari_bitis_idx on public.mac_sonuclari (bitis desc);
+
 alter table public.profiller      enable row level security;
+alter table public.mac_sonuclari  enable row level security;
 alter table public.davet_kodlari  enable row level security;
 alter table public.odalar         enable row level security;
 alter table public.oda_oyunculari enable row level security;
@@ -590,7 +607,7 @@ create or replace function public.hamle_tas(p_oda uuid, p_hucre int, p_sym text)
 language plpgsql security definer set search_path = public, pg_temp as $$
 declare
   r public.odalar%rowtype; v_sira int; s jsonb; g public.oda_gizli%rowtype;
-  v_boyut int; v_kullanilan int; v_limit int; p int[]; v_say int;
+  v_boyut int; v_kullanilan int; v_limit int; p int[]; v_say int; v_mac uuid := gen_random_uuid();
 begin
   select * into r from public.odalar where id = p_oda for update;
   v_sira := public.mh_kontrol(r);
@@ -618,6 +635,11 @@ begin
     p := public.mh_puanlar(s, g.tahta, g.bonus);
     s := s || jsonb_build_object('bitti', true, 'faz', 'bitti', 'tahta', to_jsonb(g.tahta), 'puanlar', to_jsonb(p));
     update public.odalar set durum = 'bitti', durum_json = s, surum = surum + 1 where id = p_oda;
+    -- sıralama için sonuçları kaydet (beraberlikte en yüksek puanı alanların hepsi kazanmış sayılır)
+    insert into public.mac_sonuclari (mac_id, oda_kod, kullanici_id, ad, puan, kazandi, oyuncu_sayisi, blof)
+    select v_mac, r.kod, o.kullanici_id, o.ad, p[o.sira + 1],
+           p[o.sira + 1] = (select max(x) from unnest(p) x), array_length(p, 1), r.blof
+    from public.oda_oyunculari o where o.oda_id = p_oda and o.sira is not null;
   else
     if (s ->> 'test_yapildi')::boolean or (s ->> 'zorunlu')::boolean then
       s := public.mh_tur_bitir(s, r.blof);
@@ -704,6 +726,54 @@ end;
 $$;
 
 -- -----------------------------------------------------------------------------
+-- 7b) Sıralama
+-- -----------------------------------------------------------------------------
+-- Sıralama: önce galibiyet sayısı, eşitlikte ortalama puan, sonra maç sayısı.
+create or replace function public.siralama(p_limit int default 50) returns jsonb
+language plpgsql stable security definer set search_path = public, pg_temp as $$
+begin
+  if not public.is_onayli() then raise exception 'Hesabın henüz onaylanmadı'; end if;
+  return jsonb_build_object(
+    'benim_id', auth.uid(),
+    'tablo', coalesce((
+      select jsonb_agg(to_jsonb(t) order by t.galibiyet desc, t.ortalama desc, t.mac desc, t.ad)
+      from (
+        select m.kullanici_id as id,
+               coalesce(max(p.gorunen_ad), max(m.ad)) as ad,
+               count(*)::int as mac,
+               sum(case when m.kazandi then 1 else 0 end)::int as galibiyet,
+               round(avg(m.puan)::numeric, 1) as ortalama,
+               max(m.puan)::int as en_yuksek
+        from public.mac_sonuclari m
+        left join public.profiller p on p.id = m.kullanici_id
+        group by m.kullanici_id
+        order by sum(case when m.kazandi then 1 else 0 end) desc, avg(m.puan) desc, count(*) desc
+        limit greatest(1, least(coalesce(p_limit, 50), 200))
+      ) t
+    ), '[]'::jsonb));
+end;
+$$;
+
+-- Son oynanan maçlar (oyuncular puana göre sıralı)
+create or replace function public.son_maclar(p_limit int default 10) returns jsonb
+language plpgsql stable security definer set search_path = public, pg_temp as $$
+begin
+  if not public.is_onayli() then raise exception 'Hesabın henüz onaylanmadı'; end if;
+  return coalesce((
+    select jsonb_agg(x order by x.bitis desc)
+    from (
+      select m.mac_id, max(m.bitis) as bitis, max(m.oda_kod) as oda_kod, bool_or(m.blof) as blof,
+             jsonb_agg(jsonb_build_object('ad', m.ad, 'puan', m.puan, 'kazandi', m.kazandi) order by m.puan desc, m.ad) as oyuncular
+      from public.mac_sonuclari m
+      group by m.mac_id
+      order by max(m.bitis) desc
+      limit greatest(1, least(coalesce(p_limit, 10), 50))
+    ) x
+  ), '[]'::jsonb);
+end;
+$$;
+
+-- -----------------------------------------------------------------------------
 -- 8) Yetkiler: tarayıcı yalnızca bu fonksiyonları çağırabilir
 -- -----------------------------------------------------------------------------
 revoke all on function
@@ -717,7 +787,7 @@ revoke all on function
   public.oda_yeniden(uuid), public.mh_kontrol(public.odalar),
   public.hamle_test(uuid, int, text), public.hamle_acikla(uuid, text), public.hamle_ozel(uuid),
   public.hamle_tas(uuid, int, text), public.hamle_pas(uuid), public.hamle_itiraz(uuid, boolean),
-  public.hamle_sira_gec(uuid)
+  public.hamle_sira_gec(uuid), public.siralama(int), public.son_maclar(int)
 from public, anon;
 
 grant execute on function
@@ -731,7 +801,7 @@ grant execute on function
   public.oda_yeniden(uuid),
   public.hamle_test(uuid, int, text), public.hamle_acikla(uuid, text), public.hamle_ozel(uuid),
   public.hamle_tas(uuid, int, text), public.hamle_pas(uuid), public.hamle_itiraz(uuid, boolean),
-  public.hamle_sira_gec(uuid)
+  public.hamle_sira_gec(uuid), public.siralama(int), public.son_maclar(int)
 to authenticated;
 
 -- İç yardımcılar tarayıcıdan çağrılamaz (yalnızca diğer fonksiyonlar kullanır)

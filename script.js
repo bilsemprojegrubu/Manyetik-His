@@ -766,6 +766,7 @@ function pickUpStone(i) {
   const { sym } = game.flags.get(i);
   game.flags.delete(i);
   sel = { kind: "stone", value: sym };
+  Ses.play("tik");
   say(`${cellName(i, game.size)} karesindeki ${sym} taşı alındı. Başka bir kareye bırakabilirsin.`);
   refresh();
 }
@@ -815,6 +816,7 @@ function finishTest(g, i, tool, real) {
 
 function announce(said) {
   if (game.remote) return remoteAnnounce(said);
+  Ses.play("acikla");
   const g = game;
   const { cell, tool, real } = g.pending;
   const p = g.current;
@@ -855,6 +857,7 @@ function commitStone(g, i, sym) {
   g.flags.set(i, { player: g.current, sym });
   g.flaggedThisTurn = true;
   g.justPlaced = i;
+  Ses.play("tas");
   say(`${cellName(i, g.size)} karesine ${sym} taşı bırakıldı.`);
   refresh();
   g.justPlaced = null;
@@ -884,6 +887,7 @@ function endTurn() {
   else g.passStreak = 0;
   if (!g.forced && g.passStreak >= PASS_ROUNDS_FOR_FORCED * g.players.length) {
     g.forced = true;
+    Ses.play("zorunlu");
     showModal("Zorunlu Tespit Turu",
       "Herkes art arda iki tam tur pas geçti.\nŞimdi her oyuncu sırayla bir taş yerleştirmek zorunda; test yapılmaz.");
   }
@@ -933,6 +937,7 @@ function resolveChallenge(challenger, claim, doChallenge) {
     return;
   }
   if (claim.bluffed) {
+    Ses.play("alarm");
     g.bonus[claim.player] -= BLUFF_CAUGHT;
     g.bonus[challenger] += BLUFF_CAUGHT;
     claim.entry.result = claim.real;
@@ -940,6 +945,7 @@ function resolveChallenge(challenger, claim, doChallenge) {
     say(`🚨 ${me} itiraz etti: ${tester} ${where} testinde BLÖF yapmıştı!\n` +
       `Gerçek tepki: ${REACTION_TEXT[claim.real]}\n${me} +${BLUFF_CAUGHT}, ${tester} −${BLUFF_CAUGHT}.`);
   } else {
+    Ses.play("buzz");
     g.bonus[challenger] += BLUFF_FALSE_ALARM;
     claim.entry.confirmed = true;
     say(`${me} itiraz etti ama ${tester} doğruyu söylüyordu (${where}).\n${me} ${BLUFF_FALSE_ALARM}.`);
@@ -1103,6 +1109,7 @@ function animateTool(cell, tool, result) {
     pawn.style.left = srect.left + sx + srect.width / 2 + "px";
     pawn.style.top = srect.top + sy + srect.height / 2 + "px";
     document.body.appendChild(pawn);
+    Ses.play("ucus");
     pawn.getBoundingClientRect(); // geçişin başlaması için yeniden akış
     pawn.style.left = crect.left + sx + crect.width / 2 + "px";
     pawn.style.top = crect.top + sy + crect.height / 2 + "px";
@@ -1116,6 +1123,7 @@ function animateTool(cell, tool, result) {
       pawn.style.left = "";
       pawn.style.top = "";
       cellEl.appendChild(pawn);
+      Ses.play(result || "tik"); // blöf modunda sonuç gizli: nötr tık
       const fig = pawn.querySelector(".pawn-fig");
       fig.classList.add(result ? `react-${result}` : "react-neutral");
       let bubble = null;
@@ -1309,6 +1317,7 @@ function finish() {
   const g = game;
   g.over = true;
   g.phase = "over";
+  Ses.play("bitis");
   sel = null;
   busy = false;
   stopTimer();

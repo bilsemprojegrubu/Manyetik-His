@@ -585,3 +585,23 @@ body {
 .ol-small[disabled], .big-btn[disabled] { opacity: 0.55; cursor: wait; }
 .ol-danger { background: #f2c4bd; border-color: #b3261e; color: #6e130c; }
 .ol-code { font-size: 2.6rem; font-weight: 900; letter-spacing: 0.25em; color: var(--wood-darker); text-shadow: 0 1px 0 #fff3dc; margin: 2px 0; }
+
+/* ---------- Ses düğmesi ---------- */
+.sound-btn {
+  position: fixed; top: 10px; right: 10px; z-index: 120;
+  width: 44px; height: 44px; border-radius: 50%;
+  font-size: 1.3rem; line-height: 1; cursor: pointer;
+  color: var(--cream); background: var(--wood-dark);
+  border: 2px solid var(--wood-darker);
+  box-shadow: 0 2px 0 var(--wood-darker), 0 4px 8px rgba(60, 30, 5, 0.35);
+}
+.sound-btn.off { opacity: 0.7; background: #8a7a64; }
+.sound-btn:active { transform: translateY(1px); }
+
+/* ---------- Sıralama tablosu ---------- */
+.ol-table { padding: 6px 8px; }
+.ol-trow { display: grid; grid-template-columns: 2.2rem 1fr 3rem 3rem 3.4rem; gap: 4px; align-items: center; padding: 8px 4px; border-bottom: 1px solid rgba(138, 90, 43, 0.3); text-align: center; font-size: 0.95rem; }
+.ol-trow:last-child { border-bottom: none; }
+.ol-thead { font-size: 0.75rem; font-weight: bold; color: var(--wood-darker); border-bottom: 2px solid var(--wood-dark); }
+.ol-tname { text-align: left; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ol-trow.me { background: rgba(255, 224, 138, 0.55); border-radius: 6px; }

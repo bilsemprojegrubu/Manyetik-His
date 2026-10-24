@@ -75,6 +75,9 @@ const ol = {
   overShown: false,
   joinCode: "",        // bağlantıdaki ?oda=KOD
   inviteCode: "",      // bağlantıdaki ?kod=KOD
+  rankTab: "siralama",
+  rank: null,          // sıralama tablosu verisi
+  recent: [],          // son maçlar
 };
 
 const olScreen = document.getElementById("online-screen");
@@ -172,7 +175,7 @@ function olRender() {
   if (ol.error) status.push(olEl("div", { class: "ol-err", role: "alert" }, ol.error));
   if (ol.notice) status.push(olEl("div", { class: "ol-ok", role: "status" }, ol.notice));
   status.forEach((s) => olBody.appendChild(s));
-  const views = { auth: olViewAuth, pending: olViewPending, home: olViewHome, room: olViewRoom, admin: olViewAdmin };
+  const views = { auth: olViewAuth, pending: olViewPending, home: olViewHome, room: olViewRoom, admin: olViewAdmin, siralama: olViewRanking };
   (views[ol.view] || olViewAuth)();
 }
 
@@ -290,6 +293,7 @@ function olViewHome() {
       rooms.map((r) => olEl("div", { class: "ol-row" },
         olEl("div", {}, olEl("strong", {}, r.kod), ` · ${olDurumText(r.durum)} · ${r.oyuncu_sayisi} oyuncu` + (r.blof ? " · blöf" : "")),
         olSmallBtn("Gir", () => olDo(() => olEnter(r.id)))))) : null,
+    olBtn("🏆 Sıralama", () => olDo(olOpenRanking), "alt-btn"),
     ol.profile.rol === "yonetici" ? olBtn("🛠 Yönetim paneli", () => olDo(async () => { await olLoadAdmin(); olShow("admin"); }), "alt-btn") : null,
     olSmallBtn("Çıkış yap", olSignOut));
 }
@@ -360,6 +364,7 @@ function olOnRoom(room) {
   if (ol.room && room.id === ol.room.id && room.surum < ol.room.surum) return; // eski yanıt
   if (room.durum === "bekleme") {
     const wasInGame = game && game.remote;
+    if (ol.room && ol.view === "room" && room.oyuncular.length > ol.room.oyuncular.length) Ses.play("katil");
     ol.room = room;
     if (wasInGame) { game = null; busy = false; ol.overShown = false; }
     if (wasInGame || ol.view === "room") olShow("room");
@@ -408,6 +413,7 @@ function olViewRoom() {
             olEnterRoomData(room);
           }), n >= 2 ? "" : "alt-btn")
         : olEl("p", { class: "ol-muted ol-center" }, "⏳ Kurucunun oyunu başlatması bekleniyor…"),
+    olSmallBtn("🏆 Sıralama", () => olDo(olOpenRanking)),
     olSmallBtn("Odadan ayrıl", () => olDo(async () => {
       await olRpc("odadan_ayril", { p_oda: r.id });
       olStopPolling(); ol.room = null; await olRefreshRooms(); olShow("home");
@@ -490,6 +496,47 @@ function olViewAdmin() {
       }));
   }
   olAdd(olSmallBtn("← Ana sayfa", () => olShow("home")));
+}
+
+// --- Sıralama ---
+async function olOpenRanking() {
+  const [rank, recent] = await Promise.all([olRpc("siralama", { p_limit: 50 }), olRpc("son_maclar", { p_limit: 10 })]);
+  ol.rank = rank;
+  ol.recent = recent || [];
+  ol.rankBack = ol.view === "room" && ol.room ? "room" : "home";
+  olShow("siralama");
+}
+
+function olViewRanking() {
+  const tabs = [["siralama", "Sıralama"], ["maclar", "Son maçlar"]];
+  olAdd(olEl("div", { class: "ol-tabs" }, tabs.map(([k, label]) =>
+    olEl("button", { type: "button", class: "ol-tab" + (ol.rankTab === k ? " active" : ""),
+      onclick: () => { ol.rankTab = k; olRender(); } }, label))));
+  if (ol.rankTab === "siralama") {
+    const rows = (ol.rank && ol.rank.tablo) || [];
+    const benim = ol.rank && ol.rank.benim_id;
+    const medal = ["🥇", "🥈", "🥉"];
+    olAdd(rows.length
+      ? olEl("div", { class: "ol-card ol-table" },
+          olEl("div", { class: "ol-trow ol-thead" }, olEl("span", {}, "#"), olEl("span", {}, "Oyuncu"),
+            olEl("span", {}, "Maç"), olEl("span", {}, "Gal."), olEl("span", {}, "Ort.")),
+          rows.map((r, i) => olEl("div", { class: "ol-trow" + (r.id === benim ? " me" : "") },
+            olEl("span", {}, i < 3 ? medal[i] : String(i + 1)),
+            olEl("span", { class: "ol-tname" }, r.ad + (r.id === benim ? " (sen)" : "")),
+            olEl("span", {}, String(r.mac)), olEl("span", {}, String(r.galibiyet)),
+            olEl("span", {}, String(r.ortalama)))))
+      : olEl("p", { class: "ol-muted ol-center" }, "Henüz tamamlanmış çevrimiçi maç yok. İlk maçı sen oyna!"),
+      olEl("p", { class: "ol-muted" },
+        "Sıralama: önce galibiyet sayısı, eşitlikte ortalama puan. Beraberlikte en yüksek puanı alanların hepsi galibiyet sayılır. Yalnızca bitmiş çevrimiçi maçlar sayılır."));
+  } else {
+    olAdd(ol.recent.length ? ol.recent.map((m) => olEl("div", { class: "ol-card" },
+      olEl("div", { class: "ol-muted" },
+        `${new Date(m.bitis).toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" })} · Oda ${m.oda_kod} · ${m.oyuncular.length} oyuncu` + (m.blof ? " · blöf" : "")),
+      m.oyuncular.map((p, i) => olEl("div", { class: "ol-row" },
+        olEl("span", {}, `${i + 1}. ${p.ad}`), olEl("strong", {}, `${p.puan} puan${p.kazandi ? " 🏆" : ""}`)))))
+      : olEl("p", { class: "ol-muted ol-center" }, "Henüz tamamlanmış çevrimiçi maç yok."));
+  }
+  olAdd(olSmallBtn("← Geri", () => { if (ol.rankBack === "room" && ol.room) olShow("room"); else olShow("home"); }));
 }
 
 function olRandomCode() {
@@ -586,11 +633,13 @@ function olApplyRoom(room, byMe) {
   if (!game || !game.remote || game.roomId !== room.id) { olStartRemoteGame(room); return; }
   const g = game;
   const wasForced = g.forced;
+  const wasMyTurn = g.current === g.me;
   g.apply(room);
   const ev = room.oyun.olay;
   if (ev) {
     if (byMe) {
       ol.lastEventId = Math.max(ol.lastEventId, ev.id);
+      olEventSound(ev);
       say(olEventText(ev, g));
     } else if (ev.id > ol.lastEventId) {
       ol.lastEventId = ev.id;
@@ -600,7 +649,9 @@ function olApplyRoom(room, byMe) {
   refresh();
   updateActions();
   if (g.phase === "announce" && !g.myReal) olFetchReal();
+  if (!byMe && !wasMyTurn && g.current === g.me && !g.over) Ses.play("sira");
   if (g.forced && !wasForced) {
+    Ses.play("zorunlu");
     showModal("Zorunlu Tespit Turu",
       "Herkes art arda iki tam tur pas geçti.\nŞimdi her oyuncu sırayla bir taş yerleştirmek zorunda; test yapılmaz.");
   }
@@ -619,6 +670,7 @@ function olQueueEvent(ev) {
       busy = false;
     }
     if (game === g) {
+      olEventSound(ev);
       say(olEventText(ev, g));
       refresh();
       updateActions();
@@ -658,8 +710,17 @@ function olEventText(ev, g) {
   }
 }
 
+// Olaya uygun ses (test animasyonunun sesi animateTool'da çalar)
+function olEventSound(ev) {
+  if (ev.tur === "tas") Ses.play("tas");
+  else if (ev.tur === "acikla") Ses.play("acikla");
+  else if (ev.tur === "itiraz") Ses.play(ev.sonuc === "yakalandi" ? "alarm" : ev.sonuc === "bos" ? "buzz" : "tik");
+  else if (ev.tur === "pas" || ev.tur === "gecildi") Ses.play("tik");
+}
+
 function olShowResults(g) {
   ol.overShown = true;
+  Ses.play("bitis");
   const s = g.scores();
   const order = s.map((_, p) => p).sort((a, b) => s[b] - s[a]);
   let msg = order.map((p, k) => `${k + 1}. ${g.players[p]}: ${s[p]} puan`).join("\n");
