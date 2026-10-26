@@ -12,7 +12,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Manyetik-His">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="stylesheet" href="style.css?v=5.0">
+<script>
+// Tarayıcının "yüklenebilir" sinyalini sayfa açılır açılmaz yakala (pwa.js sonra kullanır)
+window.__bip = null;
+window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); window.__bip = e; });
+</script>
+<link rel="stylesheet" href="style.css?v=5.1">
 </head>
 <body>
 
@@ -54,9 +59,9 @@
     <button class="link-btn" id="btn-leaders">🏆 Skor Tablosu</button>
     <button class="link-btn" id="btn-help">Nasıl oynanır?</button>
   </div>
-  <button class="big-btn install-btn" id="btn-install" style="display:none">📲 Uygulamayı yükle (internetsiz de açılır)</button>
+  <button class="big-btn install-btn" id="btn-install">📲 Uygulamayı yükle (internetsiz de açılır)</button>
   <div id="offline-note" class="offline-note" style="display:none">📴 Çevrimdışısın. Tek kişilik ve yapay zekâ oyunları çalışır; çevrimiçi mod ve skor tablosu için internet gerekir.</div>
-  <div class="version">v5.0</div>
+  <div class="version">v5.1</div>
 </div>
 
 <div id="online-screen" class="screen" style="display:none">
@@ -119,11 +124,11 @@
   </div>
 </div>
 
-<script src="cards.js?v=5.0"></script>
-<script src="vendor/supabase.js?v=5.0"></script>
-<script src="ses.js?v=5.0"></script>
-<script src="script.js?v=5.0"></script>
-<script src="online.js?v=5.0"></script>
-<script src="pwa.js?v=5.0"></script>
+<script src="cards.js?v=5.1"></script>
+<script src="vendor/supabase.js?v=5.1"></script>
+<script src="ses.js?v=5.1"></script>
+<script src="script.js?v=5.1"></script>
+<script src="online.js?v=5.1"></script>
+<script src="pwa.js?v=5.1"></script>
 </body>
 </html>
