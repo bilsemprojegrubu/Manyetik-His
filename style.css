@@ -605,3 +605,7 @@ body {
 .ol-thead { font-size: 0.75rem; font-weight: bold; color: var(--wood-darker); border-bottom: 2px solid var(--wood-dark); }
 .ol-tname { text-align: left; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ol-trow.me { background: rgba(255, 224, 138, 0.55); border-radius: 6px; }
+
+/* ---------- Uygulama olarak yükle ---------- */
+.install-btn { background-color: #2f6b4f; border-color: #1c4631; box-shadow: 0 3px 0 #1c4631, 0 5px 8px rgba(30, 60, 40, 0.3); margin-top: 14px; }
+.offline-note { margin: 12px auto 0; max-width: 420px; font-size: 0.85rem; font-weight: bold; color: #6e130c; background: #f8d7d2; border: 2px solid #b3261e; border-radius: 8px; padding: 8px 10px; }

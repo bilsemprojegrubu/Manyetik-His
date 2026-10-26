@@ -423,7 +423,9 @@ document.getElementById("btn-help").addEventListener("click", () => {
     "Doğru +10, yanlış -10. Herkes art arda iki tam tur pas geçerse Zorunlu Tespit Turu başlar.\n" +
     "5+ oyuncuda tabla büyür (oyuncu sayısı × oyuncu sayısı).\n\n" +
     "Blöf modu: test eden tepkiyi gizlice görür, sonra doğruyu ya da başka bir tepkiyi açıklar. " +
-    "Sıradaki oyuncu itiraz edebilir: blöfü yakalarsa +10 (blöfçü -10), haksız çıkarsa -10.");
+    "Sıradaki oyuncu itiraz edebilir: blöfü yakalarsa +10 (blöfçü -10), haksız çıkarsa -10.\n\n" +
+    "📲 Uygulama olarak yükle: Chrome/Edge'de menüdeki \"Uygulamayı yükle\" düğmesine bas; iPhone'da Safari'de " +
+    "Paylaş > Ana Ekrana Ekle. Yüklenince internetsiz de açılır.");
 });
 document.getElementById("btn-menu").addEventListener("click", () => {
   if (game && game.remote) { remoteLeaveGame(); return; }

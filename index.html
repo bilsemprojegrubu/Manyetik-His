@@ -4,7 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Manyetik-His: Kutupların Savaşı</title>
-<link rel="stylesheet" href="style.css?v=4.5">
+<meta name="theme-color" content="#8a5a2b">
+<meta name="description" content="Görünmeyen manyetik kuvvetleri oyunla öğreten mantık ve hafıza oyunu.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Manyetik-His">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="style.css?v=5.0">
 </head>
 <body>
 
@@ -46,7 +54,9 @@
     <button class="link-btn" id="btn-leaders">🏆 Skor Tablosu</button>
     <button class="link-btn" id="btn-help">Nasıl oynanır?</button>
   </div>
-  <div class="version">v4.5</div>
+  <button class="big-btn install-btn" id="btn-install" style="display:none">📲 Uygulamayı yükle (internetsiz de açılır)</button>
+  <div id="offline-note" class="offline-note" style="display:none">📴 Çevrimdışısın. Tek kişilik ve yapay zekâ oyunları çalışır; çevrimiçi mod ve skor tablosu için internet gerekir.</div>
+  <div class="version">v5.0</div>
 </div>
 
 <div id="online-screen" class="screen" style="display:none">
@@ -109,10 +119,11 @@
   </div>
 </div>
 
-<script src="cards.js?v=4.5"></script>
-<script src="vendor/supabase.js?v=4.5"></script>
-<script src="ses.js?v=4.5"></script>
-<script src="script.js?v=4.5"></script>
-<script src="online.js?v=4.5"></script>
+<script src="cards.js?v=5.0"></script>
+<script src="vendor/supabase.js?v=5.0"></script>
+<script src="ses.js?v=5.0"></script>
+<script src="script.js?v=5.0"></script>
+<script src="online.js?v=5.0"></script>
+<script src="pwa.js?v=5.0"></script>
 </body>
 </html>
