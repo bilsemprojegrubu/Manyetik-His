@@ -1,6 +1,6 @@
 # 🧲 MANYETİK-HİS: Kutupların Savaşı
 
-**Güncel oyun sürümü: v5.0** · **[▶️ Oyunu oyna: bilsemprojegrubu.github.io/Manyetik-His](https://bilsemprojegrubu.github.io/Manyetik-His/)** · [Oyun sürümleri](#-oyun-sürümleri)
+**Güncel oyun sürümü: v5.1** · **[▶️ Oyunu oyna: bilsemprojegrubu.github.io/Manyetik-His](https://bilsemprojegrubu.github.io/Manyetik-His/)** · [Oyun sürümleri](#-oyun-sürümleri)
 
 Manyetik-His, görünmeyen manyetik kuvvetleri oyun yoluyla öğreten **eğitici bir mantık, hafıza ve manyetizma masa oyunudur**. Bu depoda oyunun dijitalleştirilmiş test sürümü ve güncellemeleri yer alır.
 
@@ -25,8 +25,9 @@ Oyun, telefona ya da bilgisayara **gerçek bir uygulama gibi yüklenebilir** (PW
 
 | Cihaz | Nasıl yüklenir? |
 |---|---|
-| **Android (Chrome)** | Oyunu aç, menüdeki **📲 Uygulamayı yükle** düğmesine bas (ya da ⋮ → *Uygulamayı yükle*). |
-| **Bilgisayar (Chrome / Edge)** | Menüdeki **📲 Uygulamayı yükle** düğmesine bas (ya da adres çubuğundaki yükle simgesi ⊕). |
+| **Android (Chrome)** | Menüdeki **📲 Uygulamayı yükle** düğmesine bas (ya da ⋮ → *Uygulamayı yükle* / *Ana ekrana ekle*). |
+| **Bilgisayar (Chrome / Edge)** | Menüdeki **📲 Uygulamayı yükle** düğmesine bas (ya da adres çubuğundaki yükle simgesi ⊕). Düğme doğrudan yükleyemezse tarayıcına göre adımları gösterir. |
+| **Firefox (bilgisayar)** | Uygulama yüklemeyi desteklemez; Chrome ya da Edge ile aç. Oyun Firefox'ta da oynanır. |
 | **iPhone / iPad (Safari)** | **Paylaş** ⬆️ → **Ana Ekrana Ekle**. |
 
 Yeni sürüm yayınlandığında uygulama internet varken kendini günceller; elle bir şey yapmak gerekmez.
@@ -116,7 +117,7 @@ Bu tablo oyunun kendi sürümlerini anlatır: kurallar, modlar, oynanış ve gö
 
 | Oyun sürümü | Tarih | Oyunda neler değişti |
 |---|---|---|
-| **v5.0** | 25 Eki 2026 | **İndirilebilir uygulama (PWA):** telefona ve bilgisayara uygulama gibi yüklenir (menüde **📲 Uygulamayı yükle** düğmesi; iPhone için "Ana Ekrana Ekle" yönergesi). Yüklenince tam ekran açılır ve internetsiz de oynanır; yeni sürüm internet varken kendini günceller. Magnet ikonu ve çevrimdışı uyarısı eklendi. |
+| **v5.1** | 26 Eki 2026 | **Uygulamayı yükle düğmesi her zaman görünür:** tarayıcı yüklemeyi doğrudan başlatamıyorsa Chrome, Edge, Android, iPhone ve Firefox için adım adım yönerge gösterilir. Yükleme sinyali sayfa açılır açılmaz yakalanır. |\n| **v5.0** | 25 Eki 2026 | **İndirilebilir uygulama (PWA):** telefona ve bilgisayara uygulama gibi yüklenir (menüde **📲 Uygulamayı yükle** düğmesi; iPhone için "Ana Ekrana Ekle" yönergesi). Yüklenince tam ekran açılır ve internetsiz de oynanır; yeni sürüm internet varken kendini günceller. Magnet ikonu ve çevrimdışı uyarısı eklendi. |
 | **v4.5** | 24 Eki 2026 | Yapay zekâya karşı oyunda ses: blöfte yapay zekâ tepkiyi açıklarken ses çalar, sıra sana dönünce "sıra sende" uyarısı gelir. |\n| **v4.4** | 24 Eki 2026 | Piyonun kareye giderkenki ses efekti daha hafif ve yumuşak yapıldı. |
 | **v4.3** | 24 Eki 2026 | **Ses efektleri:** taş bırakma, piyonun uçuşu, çekme / itme / tepki yok, blöf ve itiraz, sıra sende uyarısı, zorunlu tur ve oyun sonu sesleri. Sağ üstteki 🔊 düğmesiyle kapatılır. **Çevrimiçi sıralama:** bitmiş çevrimiçi maçlar kaydedilir; sıralama (galibiyet, ortalama puan) ve son maçlar listesi. |
 | **v4.2** | 24 Eki 2026 | Giriş ve kayıt formlarından örnek isim yazıları kaldırıldı. |
