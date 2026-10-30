@@ -2,7 +2,7 @@
 
 // Çevrimdışı çalışma (PWA). SÜRÜM, index.html içindeki ?v= numarasıyla aynı olmalı;
 // her yeni sürümde ikisi birlikte artırılır (testle denetlenir).
-const SURUM = "5.1";
+const SURUM = "5.2";
 const ONBELLEK = `manyetik-his-v${SURUM}`;
 const DOSYALAR = [
   "./",
@@ -16,6 +16,8 @@ const DOSYALAR = [
   `./vendor/supabase.js?v=${SURUM}`,
   `./ses.js?v=${SURUM}`,
   `./script.js?v=${SURUM}`,
+  `./settings.js?v=${SURUM}`,
+  `./yardim.js?v=${SURUM}`,
   `./online.js?v=${SURUM}`,
   `./pwa.js?v=${SURUM}`,
 ];
