@@ -52,6 +52,7 @@ class Rec {
     await this.p.evaluate(() => window.__title(null)); await wait(300);
   }
   async box(sel) {
+    await this.p.locator(sel).first().scrollIntoViewIfNeeded().catch(() => {});
     const b = await this.p.locator(sel).first().boundingBox();
     if (!b) throw new Error("yok: " + sel);
     return { x: b.x + b.width / 2, y: b.y + b.height / 2 };
@@ -61,6 +62,16 @@ class Rec {
     const c = await this.box(sel);
     await this.move(c.x, c.y); await wait(250);
     await this.p.mouse.down(); await wait(90); await this.p.mouse.up(); await wait(after);
+  }
+  async menuyeDon() {
+    const c = await this.box("#btn-menu");
+    await this.move(c.x, c.y); await wait(250);
+    await this.p.evaluate(() => {
+      const m = document.getElementById("modal-overlay");
+      if (m && m.style.display !== "none") document.getElementById("modal-close").click();
+      document.getElementById("btn-menu").click();
+    });
+    await wait(900);
   }
   async drag(from, to) {
     const a = await this.box(from);
@@ -114,6 +125,7 @@ async function kayit(ad, fn) {
   const r = new Rec(page);
   const errs = [];
   page.on("pageerror", (e) => errs.push(e.message));
+  page.on("dialog", (d) => d.accept());
   await page.goto(URL); await wait(800);
   await fn(r, page);
   await wait(600);
@@ -238,28 +250,26 @@ const SENARYOLAR = {
   async cok(r, p) {
     await r.title("Çok Oyunculu", ["Aynı cihazda sırayla (2–8 kişi) ya da arkadaşlarınla çevrimiçi."]);
     await r.cap("Seviye 2 bölümünde oyuncu sayısını seç. 2–4 oyuncuda tabla 4×4.", 3000);
-    await r.click("input[name=pcount][value='4']", 700);
+    await r.click("label:has(input[name=pcount][value='4'])", 700);
     await r.cap("Oyuncu adlarını yazabilirsin, sonra \"Oyunu Başlat\".", 2200);
     await r.click("#btn-level2", 1000);
     await r.cap("Herkes aynı ekrandan sırayla oynar. Sıra kimdeyse onun adı ve rengi yazar.", 3300);
     for (let k = 0; k < 4; k++) {
-      const used = (await p.evaluate(() => Array.from(game.flags.keys())));
-      const mats = ["N", "Fe", "S", "Cu"];
-      const c = await r.cellOf(mats[k], used);
+      const c = k * 5 % 16;
+      const m = (await r.board())[c];
       await r.cap(`Oyuncu ${k + 1}: bir test yapar ve taşını koyar.`, 1500);
       await r.tool(k % 2 ? "Fe" : "N", c, 700);
-      await r.tool && 0;
-      await r.stone(mats[k], c, 1700);
-      await r.myTurn().catch(() => {});
-      await wait(300);
+      await r.closeModal();
+      await r.stone(m, c, 1700);
+      await r.idle();
     }
     await r.cap("Herkesin taşı kendi rengindedir; kimin hangi kareye taş koyduğu görünür.", 3200);
-    await r.click("#btn-menu", 900);
+    await r.menuyeDon();
     await r.cap("5 ve daha çok oyuncuda tabla büyür: oyuncu sayısı × oyuncu sayısı.", 2800);
-    await r.click("input[name=pcount][value='6']", 700);
+    await r.click("label:has(input[name=pcount][value='6'])", 700);
     await r.click("#btn-level2", 1200);
     await r.cap("6 oyuncu → 6×6 tabla (36 kare). 8 oyuncuya kadar oynanabilir.", 3500);
-    await r.click("#btn-menu", 900);
+    await r.menuyeDon();
     await r.title("Çevrimiçi (Arkadaşlarla)", [
       "1) E-posta ya da kullanıcı adıyla hesap aç; yönetici onaylar (davet koduyla anında).",
       "2) Onaylı oyuncu oda kurar, 5 harflik kodu arkadaşlarına gönderir.",
