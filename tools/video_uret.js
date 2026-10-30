@@ -45,9 +45,11 @@ const OVERLAY = `
 })();`;
 
 class Rec {
-  constructor(page) { this.p = page; this.x = 40; this.y = 40; }
-  async cap(t, ms = 2500) { await this.p.evaluate((t) => window.__cap(t), t); await wait(ms); }
+  constructor(page) { this.p = page; this.x = 40; this.y = 40; this.t0 = Date.now(); this.cues = []; }
+  cue(m) { this.cues.push({ t: Math.round((Date.now() - this.t0) / 100) / 10, m }); }
+  async cap(t, ms = 2500) { this.cue(t); await this.p.evaluate((t) => window.__cap(t), t); await wait(ms); }
   async title(h, lines, ms = 3200) {
+    this.cue([h].concat(lines || []).join(". "));
     await this.p.evaluate(([h, l]) => window.__title(h, l), [h, lines || []]); await wait(ms);
     await this.p.evaluate(() => window.__title(null)); await wait(300);
   }
@@ -123,6 +125,7 @@ async function kayit(ad, fn) {
   await ctx.addInitScript(() => { try { localStorage.setItem("mh_ses", "0"); } catch (e) {} });
   const page = await ctx.newPage();
   const r = new Rec(page);
+  r.t0 = Date.now();
   const errs = [];
   page.on("pageerror", (e) => errs.push(e.message));
   page.on("dialog", (d) => d.accept());
@@ -133,6 +136,7 @@ async function kayit(ad, fn) {
   const webm = fs.readdirSync(TMP).find((f) => f.endsWith(".webm"));
   const hedef = path.join(OUT, ad + ".mp4");
   execSync(`ffmpeg -y -loglevel error -i "${path.join(TMP, webm)}" -vf "scale=960:-2,fps=25" -c:v libx264 -preset slow -crf 30 -pix_fmt yuv420p -movflags +faststart -an "${hedef}"`);
+  fs.writeFileSync(path.join(OUT, ad + ".json"), JSON.stringify(r.cues));
   execSync(`ffmpeg -y -loglevel error -ss 6 -i "${hedef}" -frames:v 1 -q:v 4 "${path.join(OUT, ad + ".jpg")}"`);
   console.log(ad, (fs.statSync(hedef).size / 1e6).toFixed(2) + " MB", errs.length ? "HATA: " + errs.join(" | ") : "hatasız");
 }
