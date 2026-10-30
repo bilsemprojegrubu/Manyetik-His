@@ -56,12 +56,19 @@ window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault()
 
   <div class="menu-links">
     <button class="big-btn alt-btn" id="btn-cards">📚 Kartlara Göz At</button>
+    <button class="link-btn" id="btn-settings">⚙ Ayarlar</button>
     <button class="link-btn" id="btn-leaders">🏆 Skor Tablosu</button>
     <button class="link-btn" id="btn-help">Nasıl oynanır?</button>
   </div>
   <button class="big-btn install-btn" id="btn-install">📲 Uygulamayı yükle (internetsiz de açılır)</button>
   <div id="offline-note" class="offline-note" style="display:none">📴 Çevrimdışısın. Tek kişilik ve yapay zekâ oyunları çalışır; çevrimiçi mod ve skor tablosu için internet gerekir.</div>
   <div class="version">v5.1</div>
+</div>
+
+<div id="settings-screen" class="screen" style="display:none">
+  <h1>⚙ Ayarlar</h1>
+  <div id="settings-body"></div>
+  <button class="big-btn" id="btn-settings-back">← Menüye dön</button>
 </div>
 
 <div id="online-screen" class="screen" style="display:none">
@@ -128,6 +135,7 @@ window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault()
 <script src="vendor/supabase.js?v=5.1"></script>
 <script src="ses.js?v=5.1"></script>
 <script src="script.js?v=5.1"></script>
+<script src="settings.js?v=5.1"></script>
 <script src="online.js?v=5.1"></script>
 <script src="pwa.js?v=5.1"></script>
 </body>

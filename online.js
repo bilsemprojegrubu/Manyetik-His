@@ -785,7 +785,7 @@ async function remotePlaceStone(i, sym) {
   const g = game;
   if (g.flaggedThisTurn) return say("Bu turda zaten taş koydun.");
   if (g.flags.has(i)) return say("Bu kare kilitli, taş konamaz.");
-  if (g.stonesLeft(g.me, sym) <= 0) return say(`${sym} taşların bitti.`);
+  if (g.stonesLeft(g.me, sym) <= 0) return say(`${matLabel(sym)} taşların bitti.`);
   sel = null;
   g.justPlaced = i;
   const res = await olGameCall("hamle_tas", { p_hucre: i, p_sym: sym });

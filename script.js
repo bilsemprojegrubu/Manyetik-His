@@ -5,6 +5,9 @@
 // ----------------------------------------------------------------------------
 const ROWS = "ABCDEFGH";
 const MATERIALS = ["N", "S", "Fe", "Cu"];
+// Nötr malzemenin ekranda görünen adı (Ayarlar: bakır ya da alüminyum). Oyun mantığı hep "Cu" kullanır.
+let NOTR_ETIKET = "Cu";
+const matLabel = (sym) => (sym === "Cu" ? NOTR_ETIKET : sym);
 const BASE_SIZE = 4;       // 2-4 oyuncuda tabla 4x4; 5+ oyuncuda oyuncu sayısı x oyuncu sayısı
 const MAX_PLAYERS = 8;
 
@@ -411,7 +414,7 @@ document.getElementById("btn-ai").addEventListener("click", () => {
 });
 document.getElementById("btn-help").addEventListener("click", () => {
   showModal("Nasıl oynanır?",
-    "Tablada gizli maddeler var: N mıknatıs, S mıknatıs, Demir (Fe), Bakır (Cu).\n\n" +
+    "Tablada gizli maddeler var: N mıknatıs, S mıknatıs, Demir (Fe), Bakır (Cu) ya da Alüminyum (Al; Ayarlar'dan seçilir).\n\n" +
     "Test araçları (piyonlar): bir aracı sürükleyip kareye bırak.\n" +
     " • Demir aracı: mıknatısı ÇEKER (N ve S), Fe ve Cu'ya tepki vermez.\n" +
     " • N aracı: N'yi İTER, S'yi ve Fe'yi ÇEKER, Cu'ya tepki vermez.\n\n" +
@@ -605,7 +608,7 @@ function makeStone(sym, p) {
   st.style.setProperty("--pc", playerStyle(p).color);
   const letter = document.createElement("span");
   letter.className = "stone-letter";
-  letter.textContent = sym;
+  letter.textContent = matLabel(sym);
   const mark = document.createElement("span");
   mark.className = "stone-mark";
   mark.textContent = playerStyle(p).mark;
@@ -769,7 +772,7 @@ function pickUpStone(i) {
   game.flags.delete(i);
   sel = { kind: "stone", value: sym };
   Ses.play("tik");
-  say(`${cellName(i, game.size)} karesindeki ${sym} taşı alındı. Başka bir kareye bırakabilirsin.`);
+  say(`${cellName(i, game.size)} karesindeki ${matLabel(sym)} taşı alındı. Başka bir kareye bırakabilirsin.`);
   refresh();
 }
 
@@ -847,7 +850,7 @@ function placeStone(i, sym) {
   }
   const replaced = g.level === 1 ? g.flags.get(i) : null;
   if (g.stonesLeft(p, sym) <= 0 && !(replaced && replaced.sym === sym)) {
-    return say(`${sym} taşların bitti. Bir taşı geri almak için karesine dokun.`);
+    return say(`${matLabel(sym)} taşların bitti. Bir taşı geri almak için karesine dokun.`);
   }
   commitStone(g, i, sym);
   if (g.level === 2) sel = null;
@@ -860,7 +863,7 @@ function commitStone(g, i, sym) {
   g.flaggedThisTurn = true;
   g.justPlaced = i;
   Ses.play("tas");
-  say(`${cellName(i, g.size)} karesine ${sym} taşı bırakıldı.`);
+  say(`${cellName(i, g.size)} karesine ${matLabel(sym)} taşı bırakıldı.`);
   refresh();
   g.justPlaced = null;
 }
@@ -1264,7 +1267,7 @@ function paintCell(i, el) {
   if (g.over) {
     const real = document.createElement("span");
     real.className = "cell-real";
-    real.textContent = `Gerçek: ${g.board[i]}`;
+    real.textContent = `Gerçek: ${matLabel(g.board[i])}`;
     el.appendChild(real);
   } else if (hist.length) {
     const h = document.createElement("span");
