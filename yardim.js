@@ -23,7 +23,7 @@ const Yardim = (() => {
       "Doğru +10, yanlış −10. İlk konan taş kareyi kilitler.",
       "Herkes art arda 2 tam tur pas geçerse Zorunlu Tespit Turu başlar: test yok, herkes taş koyar.",
     ] },
-    { id: "yzblof", ad: "Yapay zekâ (bloflu)", ikon: "🤥", ozet: [
+    { id: "yzblof", ad: "Yapay zekâ (blöflü)", ikon: "🤥", ozet: [
       "Menüde \"Blöf modu\" kutusunu işaretle, sonra \"Yapay Zekâya Karşı\"ya bas.",
       "Testin gerçek tepkisini yalnızca testi yapan görür; rakibine doğruyu söyler ya da blöf yaparsın.",
       "Sıradaki oyuncu itiraz edebilir: blöfü yakalarsa +10 (blöfçü −10), haksız çıkarsa −10.",
