@@ -49,6 +49,51 @@ const Yardim = (() => {
     return e;
   }
 
+  // Sesli anlatım: videonun altyazı metinlerini (videolar/<id>.json) cihazın sesiyle okur.
+  // Konuşma sürerken video bekler; böylece ses ve görüntü hiç kaymaz.
+  let anlatim = false;
+  function anlatimKur(kart, v, id) {
+    if (typeof Konus === "undefined" || !Konus.destek) return;
+    const bar = el("div", "set-row");
+    const b = el("button", "set-opt" + (anlatim ? " on" : ""), anlatim ? "🔊 Sesli anlatım: açık" : "🔇 Sesli anlatım: kapalı");
+    b.type = "button";
+    bar.appendChild(b);
+    kart.appendChild(bar);
+    let cues = null;
+    let sira = 0;
+    let konusuyor = false;
+    let kullaniciDurdurdu = false;
+    fetch(`videolar/${id}.json`).then((r) => r.json()).then((j) => { cues = j; }).catch(() => { cues = null; });
+
+    function devam() { konusuyor = false; if (!kullaniciDurdurdu && anlatim) v.play().catch(() => {}); }
+    function kontrol() {
+      if (!anlatim || !cues || konusuyor) return;
+      if (sira < cues.length && v.currentTime >= cues[sira].t) {
+        const c = cues[sira++];
+        konusuyor = true;
+        v.pause();
+        Konus.soyle(c.m, { bitince: devam });
+      }
+    }
+    v.addEventListener("timeupdate", kontrol);
+    v.addEventListener("seeked", () => {
+      Konus.sustur(); konusuyor = false;
+      sira = cues ? cues.findIndex((c) => c.t > v.currentTime) : 0;
+      if (sira < 0) sira = cues.length;
+    });
+    v.addEventListener("pause", () => { if (!konusuyor && !v.ended) kullaniciDurdurdu = true; });
+    v.addEventListener("play", () => { kullaniciDurdurdu = false; });
+    v.addEventListener("ended", () => { sira = 0; });
+    v.addEventListener("playing", () => { if (sira >= (cues ? cues.length : 0) && v.currentTime < 1) sira = 0; });
+    b.addEventListener("click", () => {
+      anlatim = !anlatim;
+      Konus.sustur(); konusuyor = false;
+      b.className = "set-opt" + (anlatim ? " on" : "");
+      b.textContent = anlatim ? "🔊 Sesli anlatım: açık" : "🔇 Sesli anlatım: kapalı";
+      if (anlatim) { sira = cues ? cues.findIndex((c) => c.t >= v.currentTime - 0.3) : 0; if (sira < 0) sira = cues.length; }
+    });
+  }
+
   function ciz() {
     govde.innerHTML = "";
     const sekmeler = el("div", "help-tabs");
@@ -71,7 +116,8 @@ const Yardim = (() => {
     v.poster = `videolar/${m.id}.jpg`;
     v.src = `videolar/${m.id}.mp4`;
     kart.appendChild(v);
-    kart.appendChild(el("p", "set-note", "Video internet gerektirir (altyazılıdır, sesi yoktur)."));
+    kart.appendChild(el("p", "set-note", "Video internet gerektirir. Altyazılıdır; sesli anlatımı aşağıdan açabilirsin."));
+    anlatimKur(kart, v, m.id);
     const ul = el("ul", "help-list");
     m.ozet.forEach((t) => ul.appendChild(el("li", "", t)));
     kart.appendChild(ul);
@@ -86,6 +132,7 @@ const Yardim = (() => {
   }
   function kapat() {
     govde.querySelectorAll("video").forEach((v) => v.pause());
+    if (typeof Konus !== "undefined") Konus.sustur();
     ekran.style.display = "none";
     menu.style.display = "";
   }

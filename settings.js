@@ -159,6 +159,25 @@ const Ayarlar = (() => {
     govde.appendChild(k);
 
     k = el("div", "set-card");
+    k.appendChild(el("h2", "", "🔊 Sesli okuma"));
+    if (typeof Konus === "undefined" || !Konus.destek) {
+      k.appendChild(el("p", "set-note", "Bu tarayıcı sesli okumayı desteklemiyor."));
+    } else {
+      r = el("div", "set-row");
+      r.appendChild(secenek("Kapalı", !Konus.acik, () => { Konus.ayarla(false); ciz(); }));
+      r.appendChild(secenek("Açık", Konus.acik, () => { Konus.ayarla(true); Konus.soyle("Sesli okuma açık."); ciz(); }));
+      k.appendChild(r);
+      r = el("div", "set-row");
+      [["Yavaş", 0.8], ["Normal", 1], ["Hızlı", 1.25]].forEach(([ad, h]) =>
+        r.appendChild(secenek(ad, Math.abs(Konus.hiz - h) < 0.01, () => { Konus.hizAyarla(h); Konus.soyle("Sıra Oyuncu 2'de. A1 karesine demir taşı bırakıldı."); ciz(); })));
+      k.appendChild(r);
+      k.appendChild(el("p", "set-note",
+        "Oyundaki mesajları (sıra, test tepkisi, puan, sonuç) yüksek sesle okur. Sesi cihazın kendisi üretir; " +
+        (Konus.trSesVar() ? "bu cihazda Türkçe ses bulundu." : "bu cihazda Türkçe ses bulunamadı, ses robotik ya da yabancı aksanlı olabilir.")));
+    }
+    govde.appendChild(k);
+
+    k = el("div", "set-card");
     k.appendChild(el("h2", "", "👀 Önizleme"));
     prev = onizleme();
     k.appendChild(prev);
