@@ -412,8 +412,8 @@ document.getElementById("btn-ai").addEventListener("click", () => {
   const me = localStorage.getItem("oyuncuAdi") || "Sen";
   startGame(2, [me, "Yapay Zekâ"], { ai: true, bluff: document.getElementById("chk-bluff").checked });
 });
-document.getElementById("btn-help").addEventListener("click", () => {
-  showModal("Nasıl oynanır?",
+function showRulesText() {
+  showModal("Kuralların yazılı özeti",
     "Tablada gizli maddeler var: N mıknatıs, S mıknatıs, Demir (Fe), Bakır (Cu) ya da Alüminyum (Al; Ayarlar'dan seçilir).\n\n" +
     "Test araçları (piyonlar): bir aracı sürükleyip kareye bırak.\n" +
     " • Demir aracı: mıknatısı ÇEKER (N ve S), Fe ve Cu'ya tepki vermez.\n" +
@@ -429,7 +429,7 @@ document.getElementById("btn-help").addEventListener("click", () => {
     "Sıradaki oyuncu itiraz edebilir: blöfü yakalarsa +10 (blöfçü -10), haksız çıkarsa -10.\n\n" +
     "📲 Uygulama olarak yükle: Chrome/Edge'de menüdeki \"Uygulamayı yükle\" düğmesine bas; iPhone'da Safari'de " +
     "Paylaş > Ana Ekrana Ekle. Yüklenince internetsiz de açılır.");
-});
+}
 document.getElementById("btn-menu").addEventListener("click", () => {
   if (game && game.remote) { remoteLeaveGame(); return; }
   if (confirm("Oyundan çıkıp menüye dönülsün mü?")) {

@@ -71,6 +71,13 @@ window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault()
   <button class="big-btn" id="btn-settings-back">← Menüye dön</button>
 </div>
 
+<div id="help-screen" class="screen" style="display:none">
+  <h1>🎬 Nasıl oynanır?</h1>
+  <div id="help-body"></div>
+  <button class="big-btn alt-btn" id="btn-help-text">📖 Kuralların yazılı özeti</button>
+  <button class="big-btn" id="btn-help-back">← Menüye dön</button>
+</div>
+
 <div id="online-screen" class="screen" style="display:none">
   <div class="online-wrap">
     <h1>🌐 Arkadaşlarla Oyna</h1>
@@ -136,6 +143,7 @@ window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault()
 <script src="ses.js?v=5.1"></script>
 <script src="script.js?v=5.1"></script>
 <script src="settings.js?v=5.1"></script>
+<script src="yardim.js?v=5.1"></script>
 <script src="online.js?v=5.1"></script>
 <script src="pwa.js?v=5.1"></script>
 </body>
