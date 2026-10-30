@@ -10,7 +10,8 @@ const { execSync } = require("child_process");
 const URL = process.env.SITE || "http://localhost:8123/index.html";
 const OUT = path.join(__dirname, "..", "videolar");
 const TMP = path.join(process.env.TMPDIR || "/tmp", "mh_video_tmp");
-const W = 1100, H = 620;
+const W = 1920, H = 1080;
+const ZOOM = W / 1100; // sayfa düzeni 1100 genişlikteki gibi kalsın, görüntü 1080p olsun
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const OVERLAY = `
@@ -121,7 +122,7 @@ async function kayit(ad, fn) {
   const ctx = await browser.newContext({
     viewport: { width: W, height: H }, recordVideo: { dir: TMP, size: { width: W, height: H } },
   });
-  await ctx.addInitScript(`window.addEventListener("DOMContentLoaded",()=>{${OVERLAY}});`);
+  await ctx.addInitScript(`window.addEventListener("DOMContentLoaded",()=>{document.documentElement.style.zoom=${ZOOM};${OVERLAY}});`);
   await ctx.addInitScript(() => { try { localStorage.setItem("mh_ses", "0"); } catch (e) {} });
   const page = await ctx.newPage();
   const r = new Rec(page);
@@ -135,7 +136,7 @@ async function kayit(ad, fn) {
   await ctx.close(); await browser.close();
   const webm = fs.readdirSync(TMP).find((f) => f.endsWith(".webm"));
   const hedef = path.join(OUT, ad + ".mp4");
-  execSync(`ffmpeg -y -loglevel error -i "${path.join(TMP, webm)}" -vf "scale=960:-2,fps=25" -c:v libx264 -preset slow -crf 30 -pix_fmt yuv420p -movflags +faststart -an "${hedef}"`);
+  execSync(`ffmpeg -y -loglevel error -i "${path.join(TMP, webm)}" -vf "scale=1920:-2,fps=25" -c:v libx264 -preset slow -crf 25 -pix_fmt yuv420p -movflags +faststart -an "${hedef}"`);
   fs.writeFileSync(path.join(OUT, ad + ".json"), JSON.stringify(r.cues));
   execSync(`ffmpeg -y -loglevel error -ss 6 -i "${hedef}" -frames:v 1 -q:v 4 "${path.join(OUT, ad + ".jpg")}"`);
   console.log(ad, (fs.statSync(hedef).size / 1e6).toFixed(2) + " MB", errs.length ? "HATA: " + errs.join(" | ") : "hatasız");
@@ -190,6 +191,20 @@ const SENARYOLAR = {
     await r.tool("N", fe, 1200);
     await r.cap("N aracı çekti, demir aracı vermedi → Fe. Sayaç 3.", 2800);
     await r.stone("Fe", fe, 1200);
+    await r.cap("Peki 24 testi aşarsak? Videoyu kısaltmak için 22 test yapılmış gibi başlıyoruz.", 3200);
+    await p.evaluate(() => { game.testCount = 22; });
+    const sc = await r.cellOf("S");
+    const cu = await r.cellOf("Cu");
+    await r.tool("N", sc, 1200);
+    await r.cap("23. test: hâlâ ücretsiz. Sayaç 23 / 24.", 3000);
+    await r.tool("Fe", sc, 1200);
+    await r.cap("24. test: son ücretsiz test. Sayaç 24 / 24.", 3000);
+    await r.tool("N", cu, 1200);
+    await r.cap("25. test: ücretsiz hak bitti! Bu testten itibaren her test −1 puan.", 3800);
+    await r.tool("Fe", cu, 1200);
+    await r.cap("26. test: yine −1 puan. Puanın testlerle azalıyor; fazla test yapmadan bulmaya çalış.", 3800);
+    await r.stone("S", sc, 1200);
+    await r.stone("Cu", cu, 1200);
     await r.cap("Test geçmişi karelerde yazılı kalır. Bu kutuyu kapatırsan hepsini aklında tutmalısın!", 3200);
     await r.click("#chk-history", 1500);
     await r.cap("Geçmiş gizli: tam bir hafıza oyunu. Kutuyu tekrar işaretlersen geri gelir.", 3200);

@@ -14,7 +14,7 @@ const Yardim = (() => {
     ] },
     { id: "uzman", ad: "Uzman modu", ikon: "🎯", ozet: [
       "Menüde \"Uzman modu\" kutusunu işaretle, sonra Seviye 1'i başlat.",
-      "İlk 24 test ücretsiz; her fazla test −1 puan. Sayaç sağda görünür.",
+      "İlk 24 test ücretsiz; 25. testten itibaren her test −1 puan. Sayaç sağda görünür.",
       "Test geçmişini kapatırsan (kutu) her şeyi aklında tutmalısın: tam hafıza oyunu.",
     ] },
     { id: "yz", ad: "Yapay zekâ (blöfsüz)", ikon: "🤖", ozet: [
@@ -23,7 +23,7 @@ const Yardim = (() => {
       "Doğru +10, yanlış −10. İlk konan taş kareyi kilitler.",
       "Herkes art arda 2 tam tur pas geçerse Zorunlu Tespit Turu başlar: test yok, herkes taş koyar.",
     ] },
-    { id: "yzblof", ad: "Yapay zekâ (bloflu)", ikon: "🤥", ozet: [
+    { id: "yzblof", ad: "Yapay zekâ (blöflü)", ikon: "🤥", ozet: [
       "Menüde \"Blöf modu\" kutusunu işaretle, sonra \"Yapay Zekâya Karşı\"ya bas.",
       "Testin gerçek tepkisini yalnızca testi yapan görür; rakibine doğruyu söyler ya da blöf yaparsın.",
       "Sıradaki oyuncu itiraz edebilir: blöfü yakalarsa +10 (blöfçü −10), haksız çıkarsa −10.",
@@ -100,7 +100,12 @@ const Yardim = (() => {
     MODLAR.forEach((m, i) => {
       const b = el("button", "set-opt" + (i === secili ? " on" : ""), `${m.ikon} ${m.ad}`);
       b.type = "button";
-      b.addEventListener("click", () => { secili = i; ciz(); });
+      b.addEventListener("click", () => {
+        // Eski videoyu ve sesli anlatımı durdur: arkada çalmaya devam etmesin
+        govde.querySelectorAll("video").forEach((v) => { v.pause(); v.removeAttribute("src"); v.load(); });
+        if (typeof Konus !== "undefined") Konus.sustur();
+        secili = i; ciz();
+      });
       sekmeler.appendChild(b);
     });
     govde.appendChild(sekmeler);
@@ -131,7 +136,7 @@ const Yardim = (() => {
     window.scrollTo(0, 0);
   }
   function kapat() {
-    govde.querySelectorAll("video").forEach((v) => v.pause());
+    govde.querySelectorAll("video").forEach((v) => { v.pause(); v.removeAttribute("src"); v.load(); });
     if (typeof Konus !== "undefined") Konus.sustur();
     ekran.style.display = "none";
     menu.style.display = "";
