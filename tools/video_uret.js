@@ -223,7 +223,7 @@ const SENARYOLAR = {
     });
     await r.cap("Şimdi bir blöf deneyelim: gerçek tepkiyi sakla, başka bir tepki söyle.", 3000);
     await r.tool("N", fe, 600);
-    await r.click("#action-panel button:has-text('Blöf yap')", 900);
+    await r.click("#action-panel button:text-is('🤥 Blöf yap')", 900);
     await r.cap("Gerçekte olmayan bir tepki seçiyoruz.", 1800);
     await r.click("#action-panel button:has-text('de')", 1200);
     await r.cap("Rakip itiraz ederse ve blöfü yakalarsa: yakalayan +10, blöfçü −10.", 3500);
