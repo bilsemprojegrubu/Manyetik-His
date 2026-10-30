@@ -1,6 +1,6 @@
 # 🧲 MANYETİK-HİS: Kutupların Savaşı
 
-**Güncel oyun sürümü: v5.4** · **[▶️ Oyunu oyna: bilsemprojegrubu.github.io/Manyetik-His](https://bilsemprojegrubu.github.io/Manyetik-His/)** · [Oyun sürümleri](#-oyun-sürümleri)
+**Güncel oyun sürümü: v5.5** · **[▶️ Oyunu oyna: bilsemprojegrubu.github.io/Manyetik-His](https://bilsemprojegrubu.github.io/Manyetik-His/)** · [Oyun sürümleri](#-oyun-sürümleri)
 
 Manyetik-His, görünmeyen manyetik kuvvetleri oyun yoluyla öğreten **eğitici bir mantık, hafıza ve manyetizma masa oyunudur**. Bu depoda oyunun dijitalleştirilmiş test sürümü ve güncellemeleri yer alır.
 
@@ -117,6 +117,7 @@ Bu tablo oyunun kendi sürümlerini anlatır: kurallar, modlar, oynanış ve gö
 
 | Oyun sürümü | Tarih | Oyunda neler değişti |
 |---|---|---|
+| **v5.5** | 30 Eki 2026 | Nasıl oynanır: başka videoya geçince önceki video ve sesli anlatım durur. Uzman modu videosu 24 testi aşınca ne olduğunu da gösterir (25. testten itibaren −1 puan). |
 | **v5.4** | 30 Eki 2026 | Menüde Ayarlar, Nasıl oynanır ve Skor Tablosu diğer seçenekler gibi kutucuk düğmesi oldu; "blöflü" yazımı düzeltildi. |
 | **v5.3** | 30 Eki 2026 | **Sesli sistem:** Ayarlar'da **🔊 Sesli okuma** (sıra, test tepkisi, puan ve sonuç mesajları yüksek sesle okunur; hız seçilir; varsayılan kapalı). **Nasıl oynanır?** videolarında **Sesli anlatım** düğmesi: altyazılar cihazın sesiyle okunur, konuşma sürerken video bekler. Ses cihazın kendi Türkçe sesidir; internetsiz de çalışır. |
 | **v5.2** | 30 Eki 2026 | **Ayarlar ve nasıl oynanır videoları:** menüde **⚙ Ayarlar**: 4 tema (Tahta, Ceviz, Gece, Keçe), taş rengi ve test aracı rengi setleri, 4. malzeme için **bakır yerine alüminyum** seçeneği (yalnızca görünen ad değişir). Ayarlar cihazda saklanır. **Nasıl oynanır?** artık 5 kısa videolu: Tek oyunculu, Uzman modu, Yapay zekâ (blöfsüz), Yapay zekâ (blöflü), Çok oyunculu. |
