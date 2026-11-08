@@ -727,6 +727,7 @@ function olShowResults(g) {
   msg += `\n\nKazanan: ${g.players[order[0]]}`;
   if (order.length > 1 && s[order[0]] === s[order[1]]) msg += " (beraberlik!)";
   msg += "\n\nKurucu, \"Menüye dön\" ile odaya dönüp yeni oyun açabilir.";
+  if (typeof Gecmis !== "undefined") Gecmis.kaydet(g, 0);
   say("OYUN BİTTİ!\n" + s.map((v, p) => `${g.players[p]}: ${v}`).join("\n"));
   lblInfo.textContent = "Oyun bitti.";
   showModal("Oyun bitti - Showdown", msg);

@@ -667,3 +667,25 @@ body {
 .help-tabs { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 .help-video { width: 100%; max-height: 62vh; border-radius: 8px; background: #000; display: block; margin: 4px 0 6px; }
 .help-list { margin: 8px 0 0; padding-left: 20px; font-size: 0.95rem; line-height: 1.45; }
+
+/* Geçmiş ve analiz ekranı */
+.gc-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.gc-tile { background: var(--alt); border: 2px solid var(--wood-dark); border-radius: 8px; padding: 8px 4px; text-align: center; }
+.gc-num { font-size: 1.3rem; font-weight: bold; }
+.gc-lbl { font-size: 0.72rem; opacity: 0.85; }
+.gc-bar-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; font-size: 0.85rem; }
+.gc-bar-name { width: 84px; font-weight: bold; }
+.gc-bar { flex: 1; height: 14px; background: var(--well); border: 1px solid var(--wood-dark); border-radius: 7px; overflow: hidden; }
+.gc-bar-fill { height: 100%; background: var(--ok); }
+.gc-bar-fill.low { background: var(--bad); }
+.gc-bar-val { min-width: 92px; text-align: right; font-size: 0.78rem; }
+.gc-chart { width: 100%; height: auto; display: block; background: var(--well); border-radius: 8px; }
+.gc-grid { stroke: var(--wood-dark); stroke-opacity: 0.35; stroke-dasharray: 3 3; }
+.gc-line { fill: none; stroke: var(--ok); stroke-width: 2.5; }
+.gc-dot { fill: var(--wood-dark); }
+.gc-tip { margin: 8px 0 0; font-size: 0.85rem; font-weight: bold; }
+.gc-list { display: flex; flex-direction: column; gap: 6px; }
+.gc-item { background: var(--alt); border: 1px solid var(--wood-dark); border-radius: 8px; padding: 6px 10px; }
+.gc-item-top { display: flex; justify-content: space-between; gap: 8px; }
+.gc-date { font-size: 0.75rem; opacity: 0.8; }
+.gc-item-line { font-size: 0.85rem; }

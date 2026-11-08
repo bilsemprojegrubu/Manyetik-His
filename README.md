@@ -1,6 +1,6 @@
 # 🧲 MANYETİK-HİS: Kutupların Savaşı
 
-**Güncel oyun sürümü: v5.6** · **[▶️ Oyunu oyna: bilsemprojegrubu.github.io/Manyetik-His](https://bilsemprojegrubu.github.io/Manyetik-His/)** · [Oyun sürümleri](#-oyun-sürümleri)
+**Güncel oyun sürümü: v5.7** · **[▶️ Oyunu oyna: bilsemprojegrubu.github.io/Manyetik-His](https://bilsemprojegrubu.github.io/Manyetik-His/)** · [Oyun sürümleri](#-oyun-sürümleri)
 
 Manyetik-His, görünmeyen manyetik kuvvetleri oyun yoluyla öğreten **eğitici bir mantık, hafıza ve manyetizma masa oyunudur**. Bu depoda oyunun dijitalleştirilmiş test sürümü ve güncellemeleri yer alır.
 
@@ -117,6 +117,7 @@ Bu tablo oyunun kendi sürümlerini anlatır: kurallar, modlar, oynanış ve gö
 
 | Oyun sürümü | Tarih | Oyunda neler değişti |
 |---|---|---|
+| **v5.7** | 08 Kas 2026 | **📊 Geçmiş ve Analiz:** biten oyunlar bu cihazda saklanır; özet, doğruluk grafiği, malzeme bazında doğruluk, ipucu ve geçmiş listesi. |
 | **v5.6** | 30 Eki 2026 | Nasıl oynanır videoları **1080p (1920×1080)** olarak yeniden kaydedildi; yazılar çok daha keskin. Videolar 3–5 MB (mobil veride biraz daha geç yüklenir). |
 | **v5.5** | 30 Eki 2026 | Nasıl oynanır: başka videoya geçince önceki video ve sesli anlatım durur. Uzman modu videosu 24 testi aşınca ne olduğunu da gösterir (25. testten itibaren −1 puan). |
 | **v5.4** | 30 Eki 2026 | Menüde Ayarlar, Nasıl oynanır ve Skor Tablosu diğer seçenekler gibi kutucuk düğmesi oldu; "blöflü" yazımı düzeltildi. |
@@ -147,6 +148,7 @@ Bu tablo oyunun kendi sürümlerini anlatır: kurallar, modlar, oynanış ve gö
 | [`sw.js`](sw.js) | Çevrimdışı çalışmayı ve güncellemeyi sağlar (service worker) |
 | [`pwa.js`](pwa.js) | "Uygulamayı yükle" düğmesi ve çevrimdışı uyarısı |
 | [`icon.svg`](icon.svg), [`icons/`](icons/) | Uygulama ikonları |
+| [`gecmis.js`](gecmis.js) | Oyun geçmişi (localStorage) ve analiz ekranı |
 | [`settings.js`](settings.js) | Ayarlar ekranı: tema, taş/araç renkleri, alüminyum seçeneği |
 | [`konus.js`](konus.js) | Sesli okuma (tarayıcının konuşma sentezi, ses dosyası yok) |
 | [`yardim.js`](yardim.js), [`videolar/`](videolar/) | Nasıl oynanır ekranı ve 5 öğretici video (mp4, altyazılı) |
