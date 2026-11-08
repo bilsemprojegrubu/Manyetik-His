@@ -1348,6 +1348,7 @@ function finish() {
   }
   say("OYUN BİTTİ!\n" + msg);
   showModal("Oyun bitti - Showdown", msg);
+  if (typeof Gecmis !== "undefined") Gecmis.kaydet(g, g.level === 1 ? finalTime : 0);
   if (g.level === 1) {
     const name = askScoreName();
     saveScore(name, s[0], correct, finalTime).then((ok) =>
