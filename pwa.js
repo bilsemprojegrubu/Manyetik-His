@@ -86,6 +86,43 @@
     });
   }
 
+  // Masaüstü kısayolu: tarayıcı doğrudan masaüstüne dosya bırakamaz; işletim sistemine uygun
+  // bir kısayol dosyası indirilir, oyuncu onu masaüstüne taşır. Telefonda gösterilmez.
+  const kisayolBtn = document.getElementById("btn-shortcut");
+  function kisayolIndir() {
+    const url = location.origin + location.pathname.replace(/[^/]*$/, "");
+    const u = ua();
+    let ad, icerik, tur;
+    if (/mac/i.test(u)) {
+      ad = "Manyetik-His.webloc";
+      icerik = '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n' +
+        `<plist version="1.0"><dict><key>URL</key><string>${url}</string></dict></plist>\n`;
+      tur = "application/octet-stream";
+    } else if (/linux|x11/i.test(u)) {
+      ad = "Manyetik-His.desktop";
+      icerik = `[Desktop Entry]\nType=Link\nName=Manyetik-His\nURL=${url}\n`;
+      tur = "application/x-desktop";
+    } else {
+      ad = "Manyetik-His.url";
+      icerik = `[InternetShortcut]\r\nURL=${url}\r\n`;
+      tur = "application/octet-stream";
+    }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([icerik], { type: tur }));
+    a.download = ad;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    showModal("Kısayol indirildi",
+      `"${ad}" dosyası indirilenler klasörüne indi.\n\nOnu masaüstüne sürükle; çift tıklayınca oyun tarayıcıda açılır.\n\n` +
+      "İnternetsiz de açılan gerçek uygulama için \"📲 Uygulamayı yükle\" düğmesini kullan.");
+  }
+  if (kisayolBtn) {
+    if (!isIos() && !isAndroid() && !standalone()) kisayolBtn.style.display = "block";
+    kisayolBtn.addEventListener("click", kisayolIndir);
+  }
+
   function refreshOnline() {
     if (offlineNote) offlineNote.style.display = navigator.onLine ? "none" : "block";
   }
