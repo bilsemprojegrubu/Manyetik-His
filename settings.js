@@ -30,6 +30,7 @@ const Ayarlar = (() => {
     N: ARAC_SETLERI[0].N,
     Fe: ARAC_SETLERI[0].Fe,
     notr: "Cu",
+    anim: true,
   };
   const HEX = /^#[0-9a-fA-F]{6}$/;
   let a = Object.assign({}, VARSAYILAN, { tas: VARSAYILAN.tas.slice() });
@@ -43,6 +44,7 @@ const Ayarlar = (() => {
       if (HEX.test(s.N)) a.N = s.N;
       if (HEX.test(s.Fe)) a.Fe = s.Fe;
       if (s.notr === "Al" || s.notr === "Cu") a.notr = s.notr;
+      if (typeof s.anim === "boolean") a.anim = s.anim;
     } catch (e) { /* bozuk kayıt: varsayılanlar */ }
   }
   function kaydet() {
@@ -156,6 +158,17 @@ const Ayarlar = (() => {
     k.appendChild(el("p", "set-note",
       "Her ikisi de iki test aracına tepki vermez; oyun kuralı değişmez, yalnızca taşın üzerindeki yazı değişir. " +
       "Çevrimiçi oyunda herkes kendi ekranındaki seçimi görür."));
+    govde.appendChild(k);
+
+    k = el("div", "set-card");
+    k.appendChild(el("h2", "", "🎞 Test animasyonu"));
+    r = el("div", "set-row");
+    r.appendChild(secenek("Açık", a.anim, () => degistir(() => { a.anim = true; })));
+    r.appendChild(secenek("Kapalı (hızlı)", !a.anim, () => degistir(() => { a.anim = false; })));
+    k.appendChild(r);
+    k.appendChild(el("p", "set-note",
+      "Kapalıyken test aracı uçuş ve tepki animasyonu oynamaz; sonuç hemen yazıyla ve karedeki işaretle görünür. " +
+      "Tek kişilik oyunda animasyon açıkken de beklemeden taş seçip koyabilir, başka kareyi test edebilirsin."));
     govde.appendChild(k);
 
     k = el("div", "set-card");
