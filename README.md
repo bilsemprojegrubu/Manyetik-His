@@ -1,6 +1,6 @@
 # 🧲 MANYETİK-HİS: Kutupların Savaşı
 
-**Güncel oyun sürümü: v5.8** · **[▶️ Oyunu oyna: bilsemprojegrubu.github.io/Manyetik-His](https://bilsemprojegrubu.github.io/Manyetik-His/)** · [Oyun sürümleri](#-oyun-sürümleri)
+**Güncel oyun sürümü: v5.9** · **[▶️ Oyunu oyna: bilsemprojegrubu.github.io/Manyetik-His](https://bilsemprojegrubu.github.io/Manyetik-His/)** · [Oyun sürümleri](#-oyun-sürümleri)
 
 Manyetik-His, görünmeyen manyetik kuvvetleri oyun yoluyla öğreten **eğitici bir mantık, hafıza ve manyetizma masa oyunudur**. Bu depoda oyunun dijitalleştirilmiş test sürümü ve güncellemeleri yer alır.
 
@@ -117,6 +117,7 @@ Bu tablo oyunun kendi sürümlerini anlatır: kurallar, modlar, oynanış ve gö
 
 | Oyun sürümü | Tarih | Oyunda neler değişti |
 |---|---|---|
+| **v5.9** | 14 Kas 2026 | Kullanım kolaylığı: Ayarlar'a **🎞 Test animasyonu (Açık/Kapalı)**. Tek kişilik oyunda test animasyonu sürerken beklemeden taş seçip koyma ve başka kareyi test etme (sonuç hemen işlenir). |
 | **v5.8** | 13 Kas 2026 | Bilgisayarda menüye **🖥 Masaüstüne kısayol indir** düğmesi: Windows `.url`, Mac `.webloc`, Linux `.desktop` kısayol dosyası indirir; masaüstüne taşınır. |
 | **v5.7** | 08 Kas 2026 | **📊 Geçmiş ve Analiz:** biten oyunlar bu cihazda saklanır; özet, doğruluk grafiği, malzeme bazında doğruluk, ipucu ve geçmiş listesi. |
 | **v5.6** | 30 Eki 2026 | Nasıl oynanır videoları **1080p (1920×1080)** olarak yeniden kaydedildi; yazılar çok daha keskin. Videolar 3–5 MB (mobil veride biraz daha geç yüklenir). |

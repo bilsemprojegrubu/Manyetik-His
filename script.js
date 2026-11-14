@@ -49,6 +49,8 @@ const REACTION_BUBBLE = { [PULL]: "⬇ ÇEKME", [PUSH]: "⬆ İTME", [NONE]: "�
 
 const REDUCED_MOTION = window.matchMedia &&
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+// Ayarlar'dan animasyon kapatılabilir (settings.js sonradan yüklenir, çağrı anında bakılır)
+const animAcik = () => !(typeof Ayarlar !== "undefined" && Ayarlar.get().anim === false);
 const sleep = (ms) => new Promise((r) => setTimeout(r, REDUCED_MOTION ? Math.min(ms, 150) : ms));
 
 // ----------------------------------------------------------------------------
@@ -785,9 +787,18 @@ async function useTool(i, tool) {
     if (game.flags.has(i)) return say("Bu kare kilitli, test gerekmez.");
     if (game.testedThisTurn) return say("Bu turda zaten test yaptın. Taş yerleştir veya turu bitir.");
   }
-  sel = null;
   const g = game;
   const real = react(tool, g.board[i]);
+  if (g.level === 1) {
+    // Tek kişilik: sonuç hemen işlenir, animasyon yalnızca görsel; beklemeden taş seçilip konabilir
+    if (animCells.has(i)) return say("Bu karede test sürüyor, bir an bekle.");
+    sel = null;
+    finishTest(g, i, tool, real);
+    animCells.add(i);
+    animateTool(i, tool, real).then(() => animCells.delete(i));
+    return;
+  }
+  sel = null;
   busy = true;
   refresh();
   await animateTool(i, tool, g.bluff && g.ai < 0 ? null : real);
@@ -1103,7 +1114,10 @@ const REACTION_SUB = {
 
 // Piyon sayfa koordinatında (absolute) uçar, kareye varınca karenin içine yerleşir:
 // ekran kayarsa kareyle birlikte kayar, kareden çıkmaz.
+const animCells = new Set(); // seviye 1: animasyonu süren kareler (aynı kareye üst üste test yapılmaz)
+
 function animateTool(cell, tool, result) {
+  if (!animAcik()) return Promise.resolve();
   return new Promise((resolve) => {
     const cellEl = cellEls[cell];
     cellEl.classList.add("testing");
@@ -1148,7 +1162,7 @@ function animateTool(cell, tool, result) {
           pawn.appendChild(arrows);
         }
         bubble = document.createElement("div");
-        bubble.className = `bubble bubble-${result}` + (cell < game.size ? " below" : "");
+        bubble.className = `bubble bubble-${result}` + (game && cell < game.size ? " below" : "");
         const big = document.createElement("strong");
         big.textContent = REACTION_BUBBLE[result];
         const small = document.createElement("span");
