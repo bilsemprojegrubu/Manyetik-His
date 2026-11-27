@@ -28,6 +28,64 @@ const Gecmis = (() => {
     try { localStorage.setItem(KEY, JSON.stringify(liste.slice(-SINIR))); } catch (e) { /* yoksay */ }
   }
 
+  // ---- hata analizi ----
+  // Yanlış konan her taş için nedeni bulur. Neden, o karede oyuncunun elindeki bilgiye bağlıdır:
+  //  testsiz  : kare hiç test edilmemiş, taş tahminle konmuş
+  //  yetersiz : testler birden çok maddeyi açık bırakıyordu; ikinci araç farkı gösterecekti
+  //  yorum    : testler konan taşı imkânsız kılıyordu (tepki yanlış yorumlanmış)
+  //  blof     : rakibin yanlış açıklaması yanılttı
+  const NEDEN_AD = {
+    testsiz: "Hiç test etmeden tahmin",
+    yetersiz: "Yetersiz test (tek araç)",
+    yorum: "Tepkiyi yanlış yorumlama",
+    blof: "Rakibin blöfüne kanma",
+  };
+  function hatalar(g, me) {
+    const out = [];
+    const tahta = g.board || [];
+    const araclar = (g.tools || ["Fe", "N"]);
+    for (const [cell, f] of g.flags.entries()) {
+      if (f.player !== me || tahta[cell] === undefined || tahta[cell] === f.sym) continue;
+      const gercek = tahta[cell], koyulan = f.sym;
+      const kayitlar = g.tests.get(cell) || [];
+      const olasi = MALZEMELER.filter((m) => kayitlar.every((t) => {
+        const beklenen = t.player === me && t.real !== undefined ? t.real : t.result;
+        return beklenen === undefined || react(t.tool, m) === beklenen;
+      }));
+      let k, arac = null;
+      if (!kayitlar.length) k = "testsiz";
+      else if (!olasi.includes(koyulan)) k = olasi.includes(gercek) ? "yorum" : "blof";
+      else if (olasi.length > 1) {
+        k = "yetersiz";
+        const kullanilan = new Set(kayitlar.map((t) => t.tool));
+        arac = araclar.find((a) => !kullanilan.has(a) && react(a, koyulan) !== react(a, gercek)) || null;
+      } else k = "blof";
+      out.push({ c: cellName(cell, g.size), y: koyulan, g: gercek, k, o: olasi, a: arac });
+    }
+    return out;
+  }
+  const ad = (s) => (typeof matLabel === "function" ? matLabel(s) : s);
+  function hataSatiri(h) {
+    let t = `${h.c}: ${ad(h.y)} koydun, gerçeği ${ad(h.g)} idi. `;
+    if (h.k === "testsiz") t += "Bu kareyi hiç test etmemiştin.";
+    else if (h.k === "yorum") t += `Testlerine göre bu kare ${(h.o || []).map(ad).join(" ya da ")} olmalıydı; tepkiyi yanlış yorumladın.`;
+    else if (h.k === "yetersiz") {
+      t += `Testlerin ${(h.o || []).map(ad).join(" ya da ")} ihtimalini açık bırakıyordu` +
+        (h.a ? `; ${TOOL_NAMES[h.a]} ile de test etseydin ayırt edebilirdin.` : ".");
+    } else t += "Rakibin açıklaması seni yanılttı.";
+    return t;
+  }
+  // Oyun bitiş penceresi için metin ("" = hata yok ya da veri yok)
+  function analizMetni(g, me) {
+    try {
+      const h = hatalar(g, me);
+      if (!h.length) return "✅ Hiç hatan yok, tüm taşlar doğru!";
+      const gosterilen = h.slice(0, 6).map((x) => "• " + hataSatiri(x));
+      if (h.length > 6) gosterilen.push(`…ve ${h.length - 6} hata daha (Geçmiş ve Analiz'de).`);
+      return `🔎 Hata analizi (${h.length} yanlış taş):\n` + gosterilen.join("\n");
+    } catch (e) { return ""; }
+  }
+
   // Biten oyunu kaydet. g: Game ya da çevrimiçi oyun nesnesi; sure: saniye (yalnızca tek kişilik)
   function kaydet(g, sure) {
     try {
@@ -62,10 +120,12 @@ const Gecmis = (() => {
       const enYuksek = Math.max(...s);
       const kayit = {
         t: Date.now(), mod, n: s.length, boyut: g.size,
+        satir: g.rows || g.size, sutun: g.cols || g.size, araclar: g.tools || ["Fe", "N"],
         puan: s[me], kazandi: s.length > 1 ? s[me] === enYuksek : null,
         dogru, toplam, test, blof, mal, arac,
       };
       if (sure) kayit.sure = Math.round(sure * 10) / 10;
+      if (mod !== "cok" && !online) kayit.hata = hatalar(g, me).slice(0, 30);
       if (mod === "cok") kayit.puanlar = s.slice();
       const liste = oku();
       liste.push(kayit);
@@ -103,13 +163,13 @@ const Gecmis = (() => {
     return k;
   }
 
-  function cubuk(ad, oran, ek) {
+  function cubuk(ad, oran, ek, hataRenk) {
     const r = el("div", "gc-bar-row");
     r.appendChild(el("span", "gc-bar-name", ad));
     const t = el("div", "gc-bar");
     const i = el("div", "gc-bar-fill");
     i.style.width = (oran === null ? 0 : oran) + "%";
-    if (oran !== null && oran < 60) i.classList.add("low");
+    if (oran !== null && (hataRenk || oran < 60)) i.classList.add("low");
     t.appendChild(i);
     r.appendChild(t);
     r.appendChild(el("span", "gc-bar-val", oran === null ? "–" : `%${oran}${ek ? " " + ek : ""}`));
@@ -168,6 +228,66 @@ const Gecmis = (() => {
       if (uz.length > 3 && son < once) satir.push("Son oyunlarında daha hızlısın.");
     }
     return satir;
+  }
+
+  function hataKartlari(kisisel) {
+    // Tahta boyutuna göre doğruluk
+    const boyut = {};
+    for (const o of kisisel) {
+      const ad2 = `${o.satir || o.boyut}×${o.sutun || o.boyut}`;
+      boyut[ad2] = boyut[ad2] || [0, 0];
+      boyut[ad2][0] += o.dogru; boyut[ad2][1] += o.toplam;
+    }
+    const bk = Object.keys(boyut);
+    let k;
+    if (bk.length > 1) {
+      k = el("div", "set-card");
+      k.appendChild(el("h2", "", "📐 Tahta boyutuna göre doğruluk"));
+      bk.sort((a, b) => parseInt(a, 10) * parseInt(a.split("×")[1], 10) - parseInt(b, 10) * parseInt(b.split("×")[1], 10))
+        .forEach((b) => k.appendChild(cubuk(b, yuzde(boyut[b][0], boyut[b][1]), `(${boyut[b][1]} taş)`)));
+      govde.appendChild(k);
+    }
+
+    const hatali = kisisel.filter((o) => Array.isArray(o.hata));
+    if (!hatali.length) return;
+    const tum = hatali.flatMap((o) => o.hata);
+    k = el("div", "set-card");
+    k.appendChild(el("h2", "", "🔎 Hata analizi"));
+    if (!tum.length) {
+      k.appendChild(el("p", "gc-tip", "🎉 Kayıtlı oyunlarında hiç yanlış taş yok. Harika!"));
+      govde.appendChild(k);
+      return;
+    }
+    k.appendChild(el("p", "set-note", `Toplam ${tum.length} yanlış taşın nedenleri:`));
+    const nedenler = {};
+    tum.forEach((h) => { nedenler[h.k] = (nedenler[h.k] || 0) + 1; });
+    Object.keys(NEDEN_AD).filter((n) => nedenler[n]).forEach((n) =>
+      k.appendChild(cubuk(NEDEN_AD[n], yuzde(nedenler[n], tum.length), `(${nedenler[n]})`, true)));
+
+    // En çok karıştırılan çiftler
+    const cift = {};
+    tum.forEach((h) => { const c = `${ad(h.y)} → ${ad(h.g)}`; cift[c] = (cift[c] || 0) + 1; });
+    const sirali = Object.entries(cift).sort((a, b) => b[1] - a[1]).slice(0, 4);
+    k.appendChild(el("p", "set-note", "En çok karıştırdıkların (koyduğun → gerçek):"));
+    sirali.forEach(([c, n]) => k.appendChild(cubuk(c, yuzde(n, sirali[0][1]), `(${n} kez)`, true)));
+
+    // Öneriler
+    const baskin = Object.entries(nedenler).sort((a, b) => b[1] - a[1])[0][0];
+    const oneri = {
+      testsiz: "Test etmeden koyduğun taşlar çok yanlış çıkıyor. Her kareyi en az bir araçla test ettikten sonra taş koy.",
+      yetersiz: "Tek araçla yetinince birden çok ihtimal kalıyor. İki aracı birlikte kullanmak maddeyi kesinleştirir.",
+      yorum: "Tepkileri yanlış yorumluyorsun. Kartlara Göz At bölümünden hangi maddenin hangi araca nasıl tepki verdiğini tekrar et.",
+      blof: "Rakiplerin blöfüne kanıyorsun. Çelişkili açıklamalara itiraz etmeyi dene; kendi testin en güvenilir bilgidir.",
+    }[baskin];
+    k.appendChild(el("p", "gc-tip", "💡 " + oneri));
+
+    // Son oyunun hataları
+    const son = hatali[hatali.length - 1];
+    if (son.hata.length) {
+      k.appendChild(el("p", "set-note", `Son oyunundaki hatalar (${tarih(son.t)}):`));
+      son.hata.slice(0, 8).forEach((h) => k.appendChild(el("p", "gc-err", "• " + hataSatiri(h))));
+    }
+    govde.appendChild(k);
   }
 
   function ciz() {
@@ -230,8 +350,9 @@ const Gecmis = (() => {
       for (const o of kisisel) for (const [a, c] of Object.entries(o.arac || {})) araclar[a] = (araclar[a] || 0) + c;
       const toplamTest = Object.values(araclar).reduce((x, y) => x + y, 0);
       if (toplamTest) {
-        k.appendChild(el("p", "set-note", "Kullandığın test araçları: " +
-          Object.entries(araclar).map(([a, c]) => `${typeof TOOL_NAMES !== "undefined" && TOOL_NAMES[a] || a} ${c}`).join(", ") + "."));
+        k.appendChild(el("p", "set-note", "Test araçlarını kullanma payın:"));
+        Object.entries(araclar).forEach(([a, c]) =>
+          k.appendChild(cubuk(a === "Fe" ? "Demir" : a + " aracı", yuzde(c, toplamTest), `(${c} test)`)));
       }
       const blof = kisisel.reduce((s, o) => s + (o.blof || 0), 0);
       if (blof) k.appendChild(el("p", "set-note", `Blöflü oyunlarda ${blof} kez yalan söyledin.`));
@@ -239,6 +360,8 @@ const Gecmis = (() => {
       ip.forEach((t) => k.appendChild(el("p", "gc-tip", "💡 " + t)));
       govde.appendChild(k);
     }
+
+    if (kisisel.length) hataKartlari(kisisel);
 
     k = el("div", "set-card");
     k.appendChild(el("h2", "", "🕘 Geçmiş oyunlar"));
@@ -289,5 +412,5 @@ const Gecmis = (() => {
   document.getElementById("btn-history").addEventListener("click", ac);
   document.getElementById("btn-history-back").addEventListener("click", kapat);
 
-  return { kaydet, ac, kapat, oku };
+  return { kaydet, ac, kapat, oku, hatalar, analizMetni };
 })();

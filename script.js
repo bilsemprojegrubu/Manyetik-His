@@ -8,12 +8,22 @@ const MATERIALS = ["N", "S", "Fe", "Cu"];
 // Nötr malzemenin ekranda görünen adı (Ayarlar: bakır ya da alüminyum). Oyun mantığı hep "Cu" kullanır.
 let NOTR_ETIKET = "Cu";
 const matLabel = (sym) => (sym === "Cu" ? NOTR_ETIKET : sym);
-const BASE_SIZE = 4;       // 2-4 oyuncuda tabla 4x4; 5+ oyuncuda oyuncu sayısı x oyuncu sayısı
 const MAX_PLAYERS = 8;
+// Tek kişilik tahta boyutları [satır, sütun]; kare sayısı hep 4'ün katıdır (her malzemeden eşit sayıda)
+const BOARD_SIZES = [[2, 2], [2, 4], [4, 4], [4, 6], [6, 6], [6, 8], [8, 8]];
+const DEFAULT_BOARD = [4, 4];
+// Çok oyunculu: 2 kişide 16 kare, her yeni oyuncu için +4 kare
+const multiCells = (players) => 16 + 4 * (Math.max(2, players) - 2);
+// Kare sayısını kareye en yakın satır x sütun olarak böler (satır <= sütun, satır >= 4)
+function shapeFor(cells) {
+  let rows = 1;
+  for (let r = 4; r * r <= cells; r++) if (cells % r === 0) rows = r;
+  return rows === 1 ? [Math.floor(Math.sqrt(cells)), Math.ceil(cells / Math.floor(Math.sqrt(cells)))] : [rows, cells / rows];
+}
 
 const L1_CORRECT = 10, L1_WRONG = -5;
 const L2_CORRECT = 10, L2_WRONG = -10;
-const EXPERT_FREE_TESTS = 24;      // Uzman modu: bu kadar test ücretsiz, fazlası -1
+const EXPERT_FREE_PER_CELL = 1.5;  // Uzman modu: kare başına 1,5 test ücretsiz (16 karede 24), fazlası -1
 const PASS_ROUNDS_FOR_FORCED = 2;  // art arda bu kadar tam tur pas -> Zorunlu Tespit Turu
 const BLUFF_CAUGHT = 10;           // blöfü yakalayan +10, blöf yapan -10
 const BLUFF_FALSE_ALARM = -10;     // haksız itiraz
@@ -34,8 +44,15 @@ const PLAYER_STYLES = [
 const SUPABASE_URL = "https://yetpclbtvqqwktkufsyq.supabase.co";
 const SUPABASE_KEY = "sb_publishable_H5FP5r8o4RH3dEtXUe4_UQ_u3tYvIhA";
 
-const TOOL_NAMES = { Fe: "Demir Test Aracı", N: "N-Kutbu Test Aracı" };
-const TOOLS = ["Fe", "N"];
+const TOOL_NAMES = { Fe: "Demir Test Aracı", N: "N-Kutbu Test Aracı", S: "S-Kutbu Test Aracı" };
+const TOOLS = ["Fe", "N", "S"];
+// Üç aracın ikisi kullanılır; hangi ikisi Ayarlar'dan seçilir. Çevrimiçi oyunda her zaman Demir + N.
+const ARAC_CIFTLERI = { "Fe-N": ["Fe", "N"], "N-S": ["N", "S"], "Fe-S": ["Fe", "S"] };
+function aktifAraclar() {
+  const k = typeof Ayarlar !== "undefined" ? Ayarlar.get().araclar : null;
+  return (ARAC_CIFTLERI[k] || ARAC_CIFTLERI["Fe-N"]).slice();
+}
+const toolsOf = (g) => (g && g.tools) || ARAC_CIFTLERI["Fe-N"];
 
 const PULL = "cekme", PUSH = "itme", NONE = "yok";
 const REACTIONS = [PULL, PUSH, NONE];
@@ -65,12 +82,17 @@ function react(tool, material) {
     if (material === "S" || material === "Fe") return PULL;
     return NONE;
   }
+  if (tool === "S") {
+    if (material === "S") return PUSH;
+    if (material === "N" || material === "Fe") return PULL;
+    return NONE;
+  }
   throw new Error("unknown tool " + tool);
 }
 
-// 4x4'te 4'er adet. n x n tablada (n tek ise kare 4'e bölünmez) kalan Cu'ya eklenir.
-function compositionFor(size) {
-  const total = size * size;
+// Kare sayısı 4'ün katıysa her malzemeden eşit sayıda; değilse (yalnızca çevrimiçi 5x5, 7x7) kalan Cu'ya eklenir.
+function compositionFor(size) { return compositionForCells(size * size); }
+function compositionForCells(total) {
   const base = Math.floor(total / 4);
   return { N: base, S: base, Fe: base, Cu: total - 3 * base };
 }
@@ -90,8 +112,12 @@ function newBoard(comp) {
 class Game {
   constructor(level, playerNames, opts = {}) {
     this.level = level;
-    this.size = level === 2 && playerNames.length > BASE_SIZE ? playerNames.length : BASE_SIZE;
-    this.comp = compositionFor(this.size);
+    if (level === 2) [this.rows, this.cols] = shapeFor(multiCells(playerNames.length));
+    else [this.rows, this.cols] = [opts.rows || DEFAULT_BOARD[0], opts.cols || DEFAULT_BOARD[1]];
+    this.size = this.cols; // cellName() için sütun sayısı
+    this.tools = opts.tools || aktifAraclar();
+    this.freeTests = Math.round(this.rows * this.cols * EXPERT_FREE_PER_CELL);
+    this.comp = compositionForCells(this.rows * this.cols);
     this.board = newBoard(this.comp);
     this.players = playerNames;
     this.ai = opts.ai ? playerNames.length - 1 : -1; // yapay zekâ son oyuncudur
@@ -115,7 +141,7 @@ class Game {
     this.over = false;
   }
 
-  get cellCount() { return this.size * this.size; }
+  get cellCount() { return this.rows * this.cols; }
 
   record(cell, player, tool, real, said) {
     if (!this.tests.has(cell)) this.tests.set(cell, []);
@@ -143,7 +169,7 @@ class Game {
     for (const [cell, { player, sym }] of this.flags.entries()) {
       s[player] += this.board[cell] === sym ? this.correct : this.wrong;
     }
-    if (this.expert) s[0] -= Math.max(0, this.testCount - EXPERT_FREE_TESTS);
+    if (this.expert) s[0] -= Math.max(0, this.testCount - this.freeTests);
     return s;
   }
 }
@@ -218,7 +244,7 @@ function aiChooseTest(game, p) {
   for (let i = 0; i < game.cellCount; i++) {
     if (game.flags.has(i)) continue;
     const used = new Set((game.tests.get(i) || []).map((t) => t.tool));
-    for (const tool of TOOLS) {
+    for (const tool of toolsOf(game)) {
       if (used.has(tool)) continue;
       const gain = sets[i].size - expectedRemaining(sets[i], tool);
       options.push({ cell: i, tool, gain: gain + Math.random() * 0.01 });
@@ -229,7 +255,7 @@ function aiChooseTest(game, p) {
   const free = [];
   for (let i = 0; i < game.cellCount; i++) if (!game.flags.has(i)) free.push(i);
   if (!free.length) return null;
-  return { cell: free[Math.floor(Math.random() * free.length)], tool: TOOLS[Math.floor(Math.random() * 2)] };
+  return { cell: free[Math.floor(Math.random() * free.length)], tool: toolsOf(game)[Math.floor(Math.random() * 2)] };
 }
 
 function aiChooseFlag(game, p, forced) {
@@ -394,17 +420,33 @@ function buildNameInputs() {
     nameInputsDiv.appendChild(row);
   }
   const note = document.getElementById("board-note");
-  note.textContent = n > BASE_SIZE
-    ? `${n} oyuncuda tabla ${n}×${n} (${n * n} kare) olur.`
-    : "2–4 oyuncuda tabla 4×4 (16 kare).";
+  const [r, c] = shapeFor(multiCells(n));
+  note.textContent = `${n} oyuncuda tabla ${r}×${c} (${r * c} kare) olur. 2 kişide 16 kare, her yeni oyuncu için +4 kare.`;
+  const tn = document.getElementById("tools-note");
+  if (tn) tn.textContent = "Test araçları: " + aktifAraclar().map((t) => TOOL_NAMES[t]).join(" + ") + " (Ayarlar'dan değişir)";
 }
 document.querySelectorAll('input[name="pcount"]').forEach((r) =>
   r.addEventListener("change", buildNameInputs)
 );
 buildNameInputs();
 
-document.getElementById("btn-level1").addEventListener("click", () =>
-  startGame(1, ["Oyuncu"], { expert: document.getElementById("chk-expert").checked }));
+// Tek kişilik tahta boyutu (seçim cihazda hatırlanır)
+const selBoard = document.getElementById("sel-board");
+BOARD_SIZES.forEach(([r, c]) => {
+  const o = document.createElement("option");
+  o.value = `${r}x${c}`;
+  o.textContent = `${r}×${c} · ${r * c} kare` + (r * c === 4 ? " (başlangıç)" : r === 4 && c === 4 ? " (standart)" : "");
+  selBoard.appendChild(o);
+});
+try { selBoard.value = localStorage.getItem("mh_boyut") || "4x4"; } catch (e) { /* yoksay */ }
+if (!selBoard.value) selBoard.value = "4x4";
+selBoard.addEventListener("change", () => {
+  try { localStorage.setItem("mh_boyut", selBoard.value); } catch (e) { /* yoksay */ }
+});
+document.getElementById("btn-level1").addEventListener("click", () => {
+  const [rows, cols] = selBoard.value.split("x").map(Number);
+  startGame(1, ["Oyuncu"], { expert: document.getElementById("chk-expert").checked, rows, cols });
+});
 document.getElementById("btn-level2").addEventListener("click", () => {
   const inputs = nameInputsDiv.querySelectorAll("input");
   const names = Array.from(inputs).map((inp, i) => inp.value.trim() || `Oyuncu ${i + 1}`);
@@ -419,14 +461,16 @@ function showRulesText() {
     "Tablada gizli maddeler var: N mıknatıs, S mıknatıs, Demir (Fe), Bakır (Cu) ya da Alüminyum (Al; Ayarlar'dan seçilir).\n\n" +
     "Test araçları (piyonlar): bir aracı sürükleyip kareye bırak.\n" +
     " • Demir aracı: mıknatısı ÇEKER (N ve S), Fe ve Cu'ya tepki vermez.\n" +
-    " • N aracı: N'yi İTER, S'yi ve Fe'yi ÇEKER, Cu'ya tepki vermez.\n\n" +
+    " • N aracı: N'yi İTER, S'yi ve Fe'yi ÇEKER, Cu'ya tepki vermez.\n" +
+    " • S aracı: S'yi İTER, N'yi ve Fe'yi ÇEKER, Cu'ya tepki vermez.\n" +
+    "Üç araçtan yalnızca ikisi kullanılır; hangi ikisi olacağı Ayarlar > Test araçları bölümünden seçilir.\n\n" +
     "Tepkilerden maddeyi çıkarıp kareye tespit taşını (N, S, Fe, Cu) bırak.\n\n" +
     "Seviye 1: doğru +10, yanlış -5, en kısa sürede bitir. Taşları süre durana dek değiştirebilirsin. " +
-    "Uzman modunda 24 test ücretsizdir, fazlası -1 puan.\n\n" +
+    "Tek kişilikte tahta 2×2'den 8×8'e seçilir. Uzman modunda kare başına 1,5 test ücretsizdir (4×4'te 24), fazlası -1 puan.\n\n" +
     "Seviye 2: sırayla oynanır. Her tur bir zorunlu test ve isteğe bağlı bir taş yerleştirme içerir " +
     "(taş koymadan bitirmek pas). Her turda iki araçtan birini seçersin. İlk konan taş kareyi kilitler. " +
     "Doğru +10, yanlış -10. Herkes art arda iki tam tur pas geçerse Zorunlu Tespit Turu başlar.\n" +
-    "5+ oyuncuda tabla büyür (oyuncu sayısı × oyuncu sayısı).\n\n" +
+    "Tabla 2 kişide 16 karedir; her yeni oyuncu için 4 kare eklenir.\n\n" +
     "Blöf modu: test eden tepkiyi gizlice görür, sonra doğruyu ya da başka bir tepkiyi açıklar. " +
     "Sıradaki oyuncu itiraz edebilir: blöfü yakalarsa +10 (blöfçü -10), haksız çıkarsa -10.\n\n" +
     "📲 Uygulama olarak yükle: Chrome/Edge'de menüdeki \"Uygulamayı yükle\" düğmesine bas; iPhone'da Safari'de " +
@@ -560,6 +604,7 @@ document.getElementById("btn-cards-back").addEventListener("click", () => {
 // ---------------- Oyun başlangıcı ----------------
 function startGame(level, names, opts = {}) {
   game = new Game(level, names, opts);
+  animCells.clear();
   finalTime = null;
   startTime = Date.now();
   sel = null;
@@ -581,11 +626,22 @@ function startGame(level, names, opts = {}) {
 function buildGameUI() {
   boardGrid.innerHTML = "";
   cellEls = [];
-  const n = game.size;
+  const rows = game.rows, cols = game.cols;
+  const n = Math.max(rows, cols);
   const px = n >= 7 ? 62 : n >= 5 ? 74 : 90;
-  boardGrid.style.setProperty("--n", n);
+  boardGrid.style.setProperty("--n", cols);
+  boardGrid.style.setProperty("--r", rows);
   boardGrid.style.setProperty("--cs-max", `${px}px`);
+  const axis = (text) => {
+    const a = document.createElement("div");
+    a.className = "axis";
+    a.textContent = text;
+    return a;
+  };
+  boardGrid.appendChild(axis("")); // sol üst köşe
+  for (let c = 0; c < cols; c++) boardGrid.appendChild(axis(c + 1));
   for (let i = 0; i < game.cellCount; i++) {
+    if (i % cols === 0) boardGrid.appendChild(axis(ROWS[i / cols]));
     const c = document.createElement("div");
     c.className = "cell";
     c.dataset.i = i;
@@ -734,7 +790,7 @@ function renderTray() {
     if (left > 0) wireTrayItem(wrap, "stone", sym);
     stoneTray.appendChild(wrap);
   });
-  TOOLS.forEach((tool) => {
+  toolsOf(game).forEach((tool) => {
     const wrap = document.createElement("div");
     wrap.className = "tray-item tool-item";
     if (sel && sel.kind === "tool" && sel.value === tool) wrap.classList.add("selected");
@@ -789,22 +845,12 @@ async function useTool(i, tool) {
   }
   const g = game;
   const real = react(tool, g.board[i]);
-  if (g.level === 1) {
-    // Tek kişilik: sonuç hemen işlenir, animasyon yalnızca görsel; beklemeden taş seçilip konabilir
-    if (animCells.has(i)) return say("Bu karede test sürüyor, bir an bekle.");
-    sel = null;
-    finishTest(g, i, tool, real);
-    animCells.add(i);
-    animateTool(i, tool, real).then(() => animCells.delete(i));
-    return;
-  }
+  // Yerel oyunlarda sonuç hemen işlenir, animasyon yalnızca görsel; beklemeden taş seçilip konabilir
+  if (animCells.has(i)) return say("Bu karede test sürüyor, bir an bekle.");
   sel = null;
-  busy = true;
-  refresh();
-  await animateTool(i, tool, g.bluff && g.ai < 0 ? null : real);
-  if (g !== game) return;
-  busy = false;
   finishTest(g, i, tool, real);
+  animCells.add(i);
+  animateTool(i, tool, g.bluff && g.ai < 0 ? null : real).then(() => animCells.delete(i));
 }
 
 // Test sonrası ortak adım (insan ve yapay zekâ için)
@@ -817,8 +863,8 @@ function finishTest(g, i, tool, real) {
     const who = g.level === 2 ? `${g.players[p]} - ` : "";
     say(`${who}${cellName(i, g.size)} karesi, ${TOOL_NAMES[tool]}:\n${REACTION_TEXT[real]}`);
     refresh();
-    if (g.level === 1 && g.expert && g.testCount > EXPERT_FREE_TESTS) {
-      say(lblMsg.textContent + `\n(Ücretsiz ${EXPERT_FREE_TESTS} test aşıldı: −1 puan)`);
+    if (g.level === 1 && g.expert && g.testCount > g.freeTests) {
+      say(lblMsg.textContent + `\n(Ücretsiz ${g.freeTests} test aşıldı: −1 puan)`);
     }
     autoEndTurn();
     return;
@@ -1066,6 +1112,7 @@ async function aiTurn() {
   refresh();
   updateActions();
   await sleep(900);
+  while (animCells.size && g === game) await sleep(150); // insanın başlattığı animasyon bitsin
   if (g !== game || g.over) return;
 
   if (!g.forced) {
@@ -1114,7 +1161,7 @@ const REACTION_SUB = {
 
 // Piyon sayfa koordinatında (absolute) uçar, kareye varınca karenin içine yerleşir:
 // ekran kayarsa kareyle birlikte kayar, kareden çıkmaz.
-const animCells = new Set(); // seviye 1: animasyonu süren kareler (aynı kareye üst üste test yapılmaz)
+const animCells = new Set(); // animasyonu süren kareler (aynı kareye üst üste test yapılmaz)
 
 function animateTool(cell, tool, result) {
   if (!animAcik()) return Promise.resolve();
@@ -1208,7 +1255,7 @@ function refreshTimer() {
   const m = Math.floor(t / 60);
   const s = (t % 60).toFixed(1).padStart(4, "0");
   let txt = `⏱ Süre: ${String(m).padStart(2, "0")}:${s}`;
-  if (game.expert) txt += `\nTest: ${game.testCount} (ücretsiz ${EXPERT_FREE_TESTS})`;
+  if (game.expert) txt += `\nTest: ${game.testCount} (ücretsiz ${game.freeTests})`;
   lblInfo.textContent = txt;
 }
 
@@ -1261,11 +1308,6 @@ function paintCell(i, el) {
   });
   el.classList.toggle("locked", !!flag && g.level === 2);
 
-  const label = document.createElement("span");
-  label.className = "cell-label";
-  label.textContent = cellName(i, g.size);
-  el.appendChild(label);
-
   if (flag) {
     const st = makeStone(flag.sym, flag.player);
     if (g.justPlaced === i) st.classList.add("drop");
@@ -1289,7 +1331,7 @@ function paintCell(i, el) {
     hist.forEach((t, k) => {
       const part = document.createElement("span");
       part.className = `hist-${t.tool}`;
-      part.textContent = `${t.tool === "Fe" ? "Fe" : "N"}:${REACTION_SHORT[t.result]}${t.exposed ? "🤥" : ""}${t.confirmed ? "✔" : ""}`;
+      part.textContent = `${t.tool}:${REACTION_SHORT[t.result]}${t.exposed ? "🤥" : ""}${t.confirmed ? "✔" : ""}`;
       if (k) h.appendChild(document.createTextNode(" "));
       h.appendChild(part);
     });
@@ -1360,14 +1402,28 @@ function finish() {
     msg += `\n\nKazanan: ${g.players[order[0]]}`;
     if (order.length > 1 && s[order[0]] === s[order[1]]) msg += " (beraberlik!)";
   }
-  say("OYUN BİTTİ!\n" + msg);
+  const ozet = msg;
+  // Hata analizi: yanlış taşların nedeni (tek kişilik ve yapay zekâya karşı; yerel çok oyunculuda yok)
+  if (g.level === 1 || g.ai >= 0) {
+    const ana = typeof Gecmis !== "undefined" ? Gecmis.analizMetni(g, 0) : "";
+    if (ana) msg += "\n\n" + ana;
+  }
+  say("OYUN BİTTİ!\n" + ozet);
   showModal("Oyun bitti - Showdown", msg);
   if (typeof Gecmis !== "undefined") Gecmis.kaydet(g, g.level === 1 ? finalTime : 0);
   if (g.level === 1) {
-    const name = askScoreName();
-    saveScore(name, s[0], correct, finalTime).then((ok) =>
-      showModal("Oyun bitti - Showdown",
-        msg + (ok ? `\n\n✅ Skorun "${name}" adıyla kaydedildi.` : "\n\n⚠️ Skor kaydedilemedi.")));
+    // Skor tablosu yalnızca standart ayarlar için: 4×4 tahta ve Demir + N araçları
+    const standart = g.rows === 4 && g.cols === 4 && g.tools.join() === "Fe,N";
+    if (!standart) {
+      showModal("Oyun bitti - Showdown", msg +
+        "\n\nℹ️ Skor tablosu yalnızca 4×4 tahta ve Demir + N araçlarıyla oynanan oyunlar içindir. " +
+        "Bu oyun Geçmiş ve Analiz ekranına kaydedildi.");
+    } else {
+      const name = askScoreName();
+      saveScore(name, s[0], correct, finalTime).then((ok) =>
+        showModal("Oyun bitti - Showdown",
+          msg + (ok ? `\n\n✅ Skorun "${name}" adıyla kaydedildi.` : "\n\n⚠️ Skor kaydedilemedi.")));
+    }
   }
   lblInfo.textContent = "Oyun bitti. Menüye dönüp tekrar oynayabilirsin.";
 }

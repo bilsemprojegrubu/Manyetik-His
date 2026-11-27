@@ -19,16 +19,18 @@ const Ayarlar = (() => {
     { ad: "Canlı", renk: ["#0066ff", "#00c853", "#ff9100", "#aa00ff", "#00e5ff", "#ff4081", "#ff1744", "#607d8b"] },
   ];
   const ARAC_SETLERI = [
-    { ad: "Klasik (N kırmızı, Fe gri)", N: "#e2574a", Fe: "#a3adb6" },
-    { ad: "Mor / Altın", N: "#8e44ad", Fe: "#d4a72c" },
-    { ad: "Turuncu / Mavi", N: "#f08a24", Fe: "#3b82c4" },
-    { ad: "Siyah / Beyaz", N: "#2b2b2b", Fe: "#f1f1f1" },
+    { ad: "Klasik (N kırmızı, S mavi, Fe gri)", N: "#e2574a", S: "#3b82c4", Fe: "#a3adb6" },
+    { ad: "Mor / Yeşil / Altın", N: "#8e44ad", S: "#2e9e6b", Fe: "#d4a72c" },
+    { ad: "Turuncu / Camgöbeği / Mavi", N: "#f08a24", S: "#1aa7b8", Fe: "#3b6fc4" },
+    { ad: "Siyah / Sarı / Beyaz", N: "#2b2b2b", S: "#e0b400", Fe: "#f1f1f1" },
   ];
   const VARSAYILAN = {
     tema: "tahta",
     tas: TAS_SETLERI[0].renk.slice(),
     N: ARAC_SETLERI[0].N,
     Fe: ARAC_SETLERI[0].Fe,
+    S: ARAC_SETLERI[0].S,
+    araclar: "Fe-N",
     notr: "Cu",
     anim: true,
   };
@@ -43,6 +45,8 @@ const Ayarlar = (() => {
       if (Array.isArray(s.tas)) s.tas.slice(0, 8).forEach((c, i) => { if (HEX.test(c)) a.tas[i] = c; });
       if (HEX.test(s.N)) a.N = s.N;
       if (HEX.test(s.Fe)) a.Fe = s.Fe;
+      if (HEX.test(s.S)) a.S = s.S;
+      if (["Fe-N", "N-S", "Fe-S"].includes(s.araclar)) a.araclar = s.araclar;
       if (s.notr === "Al" || s.notr === "Cu") a.notr = s.notr;
       if (typeof s.anim === "boolean") a.anim = s.anim;
     } catch (e) { /* bozuk kayıt: varsayılanlar */ }
@@ -65,7 +69,7 @@ const Ayarlar = (() => {
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta && tm) meta.setAttribute("content", tm.renk[1]);
     PLAYER_STYLES.forEach((s, i) => { s.color = a.tas[i]; });
-    ["N", "Fe"].forEach((t) => {
+    ["N", "S", "Fe"].forEach((t) => {
       root.style.setProperty("--pawn-" + t, a[t]);
       root.style.setProperty("--pawn-" + t + "2", koyulastir(a[t], 0.62));
     });
@@ -116,8 +120,20 @@ const Ayarlar = (() => {
     govde.innerHTML = "";
 
     let k = el("div", "set-card");
-    k.appendChild(el("h2", "", "🎨 Tema"));
+    k.appendChild(el("h2", "", "🧲 Oyunda kullanılacak 2 test aracı"));
     let r = el("div", "set-row");
+    [["Fe-N", "Demir + N (zor)"], ["N-S", "N + S (kolay)"], ["Fe-S", "Demir + S"]].forEach(([id, ad2]) =>
+      r.appendChild(secenek(ad2, a.araclar === id, () => degistir(() => { a.araclar = id; }))));
+    k.appendChild(r);
+    k.appendChild(el("p", "set-note",
+      "Üç test aracı var: Demir, N-Kutbu ve S-Kutbu; her oyunda ikisi kullanılır. " +
+      "N + S çifti en kolayıdır: iki kutup aracı mıknatısı ve demiri açıkça ayırır. " +
+      "Çevrimiçi oyun her zaman Demir + N ile oynanır."));
+    govde.appendChild(k);
+
+    k = el("div", "set-card");
+    k.appendChild(el("h2", "", "🎨 Tema"));
+    r = el("div", "set-row");
     TEMALAR.forEach((t) => r.appendChild(secenek(t.ad, a.tema === t.id,
       () => degistir(() => { a.tema = t.id; }), t.renk)));
     k.appendChild(r);
@@ -140,11 +156,12 @@ const Ayarlar = (() => {
     k = el("div", "set-card");
     k.appendChild(el("h2", "", "♟ Test aracı renkleri"));
     r = el("div", "set-row");
-    ARAC_SETLERI.forEach((s) => r.appendChild(secenek(s.ad, s.N === a.N && s.Fe === a.Fe,
-      () => degistir(() => { a.N = s.N; a.Fe = s.Fe; }), [s.N, s.Fe])));
+    ARAC_SETLERI.forEach((s) => r.appendChild(secenek(s.ad, s.N === a.N && s.S === a.S && s.Fe === a.Fe,
+      () => degistir(() => { a.N = s.N; a.S = s.S; a.Fe = s.Fe; }), [s.N, s.S, s.Fe])));
     k.appendChild(r);
     r = el("div", "set-row");
     r.appendChild(renkSecici("N aracı", a.N, (v) => { a.N = v; kaydet(); uygula(); onizlemeYenile(); }));
+    r.appendChild(renkSecici("S-Kutbu aracı", a.S, (v) => { a.S = v; kaydet(); uygula(); onizlemeYenile(); }));
     r.appendChild(renkSecici("Demir aracı", a.Fe, (v) => { a.Fe = v; kaydet(); uygula(); onizlemeYenile(); }));
     k.appendChild(r);
     govde.appendChild(k);

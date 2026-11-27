@@ -569,6 +569,9 @@ class RemoteGame {
     this.isHost = !!room.kurucu;
     this.me = room.benim.sira;
     this.size = s.boyut;
+    this.rows = s.boyut;
+    this.cols = s.boyut;
+    this.tools = ["Fe", "N"]; // sunucu yalnızca bu iki aracı bilir
     this.comp = compositionFor(this.size);
     this.players = s.oyuncular;
     this.flags = new Map();

@@ -17,7 +17,7 @@
 window.__bip = null;
 window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); window.__bip = e; });
 </script>
-<link rel="stylesheet" href="style.css?v=5.9">
+<link rel="stylesheet" href="style.css?v=5.10">
 </head>
 <body>
 
@@ -27,9 +27,14 @@ window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault()
   <h1>MANYETİK-HİS</h1>
   <h2>Kutupların Savaşı</h2>
 
+  <div class="board-pick-row">
+    <label for="sel-board">Tahta boyutu:</label>
+    <select id="sel-board"></select>
+  </div>
+  <div id="tools-note" class="menu-note"></div>
   <button class="big-btn" id="btn-level1">SEVİYE 1 — Tek Oyunculu (Zamana Karşı)</button>
   <label class="chk-row menu-chk">
-    <input type="checkbox" id="chk-expert"> Uzman modu (24 test ücretsiz, fazlası −1 puan)
+    <input type="checkbox" id="chk-expert"> Uzman modu (karelerin 1,5 katı kadar test ücretsiz, fazlası −1 puan)
   </label>
 
   <h3>SEVİYE 2 — Çok Oyunculu</h3>
@@ -64,7 +69,7 @@ window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault()
   <button class="big-btn install-btn" id="btn-install">📲 Uygulamayı yükle (internetsiz de açılır)</button>
   <button class="big-btn alt-btn" id="btn-shortcut" style="display:none">🖥 Masaüstüne kısayol indir</button>
   <div id="offline-note" class="offline-note" style="display:none">📴 Çevrimdışısın. Tek kişilik ve yapay zekâ oyunları çalışır; çevrimiçi mod ve skor tablosu için internet gerekir.</div>
-  <div class="version">v5.9</div>
+  <div class="version">v5.10</div>
 </div>
 
 <div id="settings-screen" class="screen" style="display:none">
@@ -146,15 +151,15 @@ window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault()
   </div>
 </div>
 
-<script src="cards.js?v=5.9"></script>
-<script src="vendor/supabase.js?v=5.9"></script>
-<script src="ses.js?v=5.9"></script>
-<script src="script.js?v=5.9"></script>
-<script src="konus.js?v=5.9"></script>
-<script src="settings.js?v=5.9"></script>
-<script src="gecmis.js?v=5.9"></script>
-<script src="yardim.js?v=5.9"></script>
-<script src="online.js?v=5.9"></script>
-<script src="pwa.js?v=5.9"></script>
+<script src="cards.js?v=5.10"></script>
+<script src="vendor/supabase.js?v=5.10"></script>
+<script src="ses.js?v=5.10"></script>
+<script src="script.js?v=5.10"></script>
+<script src="konus.js?v=5.10"></script>
+<script src="settings.js?v=5.10"></script>
+<script src="gecmis.js?v=5.10"></script>
+<script src="yardim.js?v=5.10"></script>
+<script src="online.js?v=5.10"></script>
+<script src="pwa.js?v=5.10"></script>
 </body>
 </html>
