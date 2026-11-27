@@ -19,6 +19,7 @@
   --frame1: #9a6a38; --frame2: #7a4b22;
   --pawn-N: #e2574a; --pawn-N2: #a32419;
   --pawn-Fe: #a3adb6; --pawn-Fe2: #5f6a73;
+  --pawn-S: #3b82c4; --pawn-S2: #1d4c82;
 }
 html[data-tema="ceviz"] {
   --wood-light: #6b4a30; --wood-mid: #583a24; --wood-dark: #3e2916; --wood-darker: #24150a;
@@ -177,12 +178,28 @@ body {
 .board-grid {
   --n: 4;
   --cs-max: 90px;
-  --cs: min(var(--cs-max), calc((100vw - 64px) / var(--n)));
+  --cs: min(var(--cs-max), calc((100vw - 90px) / var(--n)));
   display: grid;
-  grid-template-columns: repeat(var(--n), var(--cs));
-  grid-template-rows: repeat(var(--n), var(--cs));
+  --r: 4;
+  grid-template-columns: auto repeat(var(--n), var(--cs));
+  grid-template-rows: auto repeat(var(--r), var(--cs));
   gap: 7px;
 }
+/* Kenar harfleri/sayıları: kare içinde değil, tahtanın üstünde ve solunda */
+.axis {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 14px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #fbe9c8;
+  text-shadow: 0 1px 1px rgba(40, 20, 5, 0.7);
+  user-select: none;
+}
+.board-pick-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; justify-content: center; }
+.board-pick-row select { font: inherit; padding: 6px 8px; border-radius: 8px; border: 1px solid #8a5a2b; background: #fff8e8; }
+.gc-err { margin: 4px 0; font-size: 0.85rem; line-height: 1.35; }
 /* Oyulmuş kuyu gibi kareler */
 .cell {
   position: relative;
@@ -222,6 +239,7 @@ body {
 }
 .hist-N { color: #b3261e; }
 .hist-Fe { color: #4f5a63; }
+.hist-S { color: #1d5fa8; }
 .cell-real { color: var(--ink); background: rgba(255, 245, 220, 0.75); }
 
 /* ---------- Tespit taşı (kare) ---------- */
@@ -275,6 +293,7 @@ body {
 }
 .pawn-N { --pt: var(--pawn-N); --pt2: var(--pawn-N2); }
 .pawn-Fe { --pt: var(--pawn-Fe); --pt2: var(--pawn-Fe2); }
+.pawn-S { --pt: var(--pawn-S); --pt2: var(--pawn-S2); }
 .pawn-fig {
   width: 100%;
   height: 100%;

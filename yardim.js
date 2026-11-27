@@ -7,14 +7,15 @@
 const Yardim = (() => {
   const MODLAR = [
     { id: "tek", ad: "Tek oyunculu", ikon: "⏱", ozet: [
-      "16 gizli kare: 4 N mıknatıs, 4 S mıknatıs, 4 demir, 4 bakır (ya da alüminyum).",
+      "Tahta 2×2'den 8×8'e kadar seçilir (4×4 standart). Maddeler eşit dağıtılır: N, S, demir, bakır (ya da alüminyum).",
+      "Her oyunda 2 test aracı kullanılır: Demir + N, N + S ya da Demir + S (Ayarlar'dan seç). N + S en kolayıdır.",
       "Test aracını sürükleyip kareye bırak; tepkiye bakarak maddeyi bul.",
       "N aracı İTERSE kare kesin N. İki araç da ÇEKERSE S. Yalnızca N aracı çekerse Fe. İkisi de tepki vermezse Cu/Al.",
       "Tespit taşını kareye bırak. Doğru +10, yanlış −5. Süre bitene dek taşları değiştirebilirsin.",
     ] },
     { id: "uzman", ad: "Uzman modu", ikon: "🎯", ozet: [
       "Menüde \"Uzman modu\" kutusunu işaretle, sonra Seviye 1'i başlat.",
-      "İlk 24 test ücretsiz; 25. testten itibaren her test −1 puan. Sayaç sağda görünür.",
+      "İlk testler ücretsiz (kare sayısının 1,5 katı; 4×4'te 24); sonrasında her test her test −1 puan. Sayaç sağda görünür.",
       "Test geçmişini kapatırsan (kutu) her şeyi aklında tutmalısın: tam hafıza oyunu.",
     ] },
     { id: "yz", ad: "Yapay zekâ (blöfsüz)", ikon: "🤖", ozet: [
